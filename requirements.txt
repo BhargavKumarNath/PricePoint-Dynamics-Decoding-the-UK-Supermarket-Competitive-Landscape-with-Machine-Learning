@@ -1,0 +1,28 @@
+# Core Python Libraries
+numpy
+pandas
+scipy
+
+# Visualization
+matplotlib
+seaborn
+plotly
+
+# Machine Learning
+scikit-learn
+xgboost
+lightgbm
+catboost
+
+
+keras
+
+# Dimensionality Reduction / Stats
+umap-learn
+statsmodels
+
+
+# Jupyter Support (if using Jupyter)
+jupyter
+ipykernel
+
