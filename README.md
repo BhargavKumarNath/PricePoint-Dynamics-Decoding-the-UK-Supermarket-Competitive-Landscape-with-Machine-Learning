@@ -1,12 +1,12 @@
 # PricePoint Dynamics: A Deep Dive into UK Supermarket Competition with ML
 
-## 📖 Overview
+## Overview
 
 This project is an end-to-end data science analysis of the competitive landscape of the UK supermarket industry. Using daily price data scraped from **Aldi, ASDA, Morrisons, Sainsbury's, and Tesco**, this repository explores the full data science lifecycle: from data engineering and advanced NLP for product matching to predictive modeling and strategic insight generation.
 
 The primary goal is to move beyond simple price comparisons to understand the deep dynamics of the market: Who leads price changes? Who follows? How do pricing strategies differ across categories? And can we predict future price movements?
 
-## ✨ Key Features & Highlights
+## Key Features & Highlights
 
 *   **Advanced Product Matching:** Implemented a state-of-the-art canonical product mapping pipeline using **Sentence-BERT embeddings** and **FAISS** for efficient similarity search, enabling true like-for-like product comparisons.
 *   **Comprehensive EDA:** Uncovered market positioning, portfolio strategies, and category focus for each of the five major UK supermarkets.
@@ -17,9 +17,9 @@ The primary goal is to move beyond simple price comparisons to understand the de
 
 ---
 
-## 🚀 Key Findings & Insights
+## Key Findings & Insights
 
-Our analysis revealed a stable, two-tiered market with highly predictable dynamics.
+The analysis revealed a stable, two-tiered market with highly predictable dynamics.
 
 1.  **Aldi is the Undisputed Price Leader:** Aldi consistently sets the price benchmark, with the "Big Four" following its lead with a median lag of 4-7 days.
 2.  **The "Big Four" are Fast Followers:** Among the larger chains, the competitive environment is highly reactive, with price changes being matched within 0-2 days. ASDA and Morrisons emerge as the fastest price-setters in this group.
@@ -28,7 +28,7 @@ Our analysis revealed a stable, two-tiered market with highly predictable dynami
 
 ---
 
-## 🛠️ Tech Stack & Libraries
+## Tech Stack & Libraries
 
 *   **Data Manipulation & Analysis:** Pandas, NumPy
 *   **Machine Learning:** Scikit-learn, LightGBM
