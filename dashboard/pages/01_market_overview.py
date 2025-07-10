@@ -2,6 +2,9 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+import os
+import urllib.request
+
 
 # Page Configuration 
 st.set_page_config(page_title="Market Overview", layout="wide")
@@ -29,8 +32,23 @@ st.divider()
 #  Data Loading 
 @st.cache_data
 def load_data():
-    df = pd.read_parquet("data/02_processed/canonical_products_e5.parquet")
-    return df
+    local_path = "data/02_processed/canonical_products_e5.parquet"
+    
+    if not os.path.exists(local_path):
+        os.makedirs(os.path.dirname(local_path), exist_ok=True)
+
+        file_id = "1n6YLOF71Pg3nZ8IAuFI8LcoY_yY-J65_"  # Replace this with your actual file ID
+        url = f"https://drive.google.com/file/d/1n6YLOF71Pg3nZ8IAuFI8LcoY_yY-J65_/view?usp=drive_link"
+
+        try:
+            st.info("Downloading dataset from Google Drive...")
+            urllib.request.urlretrieve(url, local_path)
+        except Exception as e:
+            st.error(f"Download failed: {e}")
+            raise
+
+    return pd.read_parquet(local_path)
+
 
 df = load_data()
 
