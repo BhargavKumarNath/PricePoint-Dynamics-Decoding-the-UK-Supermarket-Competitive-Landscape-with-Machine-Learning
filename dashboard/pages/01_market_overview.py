@@ -3,8 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import os
-import urllib.request
-
+import gdown
 
 # Page Configuration 
 st.set_page_config(page_title="Market Overview", layout="wide")
@@ -33,24 +32,26 @@ st.divider()
 @st.cache_data
 def load_data():
     local_path = "data/02_processed/canonical_products_e5.parquet"
-    
+
+    # Check if file exists locally
     if not os.path.exists(local_path):
         os.makedirs(os.path.dirname(local_path), exist_ok=True)
-
-        file_id = "1n6YLOF71Pg3nZ8IAuFI8LcoY_yY-J65_"  # Replace this with your actual file ID
-        url = f"https://drive.google.com/file/d/1n6YLOF71Pg3nZ8IAuFI8LcoY_yY-J65_/view?usp=drive_link"
-
+        
+        # Use gdown to download from Google Drive
+        file_id = "1n6YLOF71Pg3nZ8IAuFI8LcoY_yY-J65_"
+        gdown_url = f"https://drive.google.com/uc?id={file_id}"
+        
         try:
             st.info("Downloading dataset from Google Drive...")
-            urllib.request.urlretrieve(url, local_path)
+            gdown.download(gdown_url, local_path, quiet=False)
         except Exception as e:
             st.error(f"Download failed: {e}")
             raise
 
+    # Load and return the dataframe
     return pd.read_parquet(local_path)
 
 
-df = load_data()
 
 # Section 1: Pricing and Portfolio Analysis 
 st.subheader("At a Glance: Pricing & Portfolio")
