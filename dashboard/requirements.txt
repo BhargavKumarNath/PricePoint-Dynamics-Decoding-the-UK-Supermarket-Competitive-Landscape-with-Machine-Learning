@@ -6,3 +6,4 @@ seaborn
 scikit-learn
 faiss-cpu
 sentence-transformers
+streamlit_agraph

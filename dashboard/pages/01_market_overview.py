@@ -56,7 +56,7 @@ with col1:
         
         ax.set_title('Product Price Distribution', fontsize=12)
         ax.set_ylabel('Price (£)')
-        ax.set_xlabel('') # Remove redundant label
+        ax.set_xlabel('') 
         st.pyplot(fig, use_container_width=True)
         st.markdown("""
         **Insight:** This reveals the market's two-tiered structure. **Aldi** operates in a significantly lower price bracket, confirming its hard-discounter model, while the "Big Four" compete in a similar, higher price range.

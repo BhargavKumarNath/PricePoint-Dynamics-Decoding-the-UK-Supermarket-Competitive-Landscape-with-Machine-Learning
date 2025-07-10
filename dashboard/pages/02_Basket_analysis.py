@@ -84,18 +84,18 @@ plt.xticks(rotation=45, ha='right')
 plt.tight_layout()
 st.pyplot(fig)
 
-# --- Detailed Breakdown Table ---
+# Detailed Breakdown Table
 st.subheader("Detailed Basket Breakdown")
 st.markdown("The table below shows the total cost, the number of items found from the basket, and the percentage of the basket each supermarket was able to fulfill.")
 st.dataframe(summary_df, use_container_width=True)
 
 
-# --- Expander for Deeper Insights ---
-with st.expander("🔍 View Products in this Basket and Their Prices"):
+# Expander for Deeper Insights
+with st.expander("View Products in this Basket and Their Prices"):
     st.markdown(f"**Showing {len(basket_df)} of {total_items_in_basket} products found in the database for the latest date.**")
     st.dataframe(basket_df.style.format("{:.2f}", na_rep="Not Stocked").highlight_min(axis=1, color='#D4EDDA').highlight_max(axis=1, color='#F8D7DA'))
 
-with st.expander("💡 How was this analysis possible? (The Tech Behind It)"):
+with st.expander("How was this analysis possible? (The Tech Behind It)"):
     st.markdown("""
     A simple text match on product names found only ~3,000 comparable products. To overcome this, I built an advanced pipeline:
     1.  **Text Normalization:** Cleaned and standardized over 127,000 unique product names.

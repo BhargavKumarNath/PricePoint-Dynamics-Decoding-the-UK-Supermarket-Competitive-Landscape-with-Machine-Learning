@@ -14,10 +14,8 @@ def load_model_and_data():
 
 model, df = load_model_and_data()
 
-# Use Inputs in sidebar
 st.sidebar.header("Product Features")
 
-# Create input widgets for the most important features (based on SHAP)
 price_lag_1d = st.sidebar.number_input(
     "Price Yesterday (£)",
     min_value=0.0, max_value=float(df["price_lag_1d"].max()),
