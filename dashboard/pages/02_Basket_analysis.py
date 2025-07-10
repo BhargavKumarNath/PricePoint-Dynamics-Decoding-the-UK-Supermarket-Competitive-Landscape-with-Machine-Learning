@@ -11,14 +11,16 @@ st.markdown("Here we compare the cost of standardised shopping baskets across su
 @st.cache_data
 def load_data():
     df = pd.read_parquet("data/02_processed/canonical_products_e5.parquet")
-    latest_date = df["date"].max()
-    df_latest = df[df["date"] == latest_date].copy()
-    df_latest = df_latest.drop_duplicates(subset=["canonical_name", "supermarket"])
-    pivot = df_latest.pivot_table(index="canonical_name", columns="supermarket", values="prices")
+    latest_date = df['date'].max()
+    df_latest = df[df['date'] == latest_date].copy()
+    
+    df_latest = df_latest.drop_duplicates(subset=['canonical_name', 'supermarket'])
+    
+    # Create the pivot table for easy lookups
+    pivot = df_latest.pivot_table(index='canonical_name', columns='supermarket', values='prices')
+    return pivot
 
-    return pivot, df
-
-price_pivot, df_canonical = load_data()
+price_pivot = load_data()
 
 # Basket DEFINITIONS
 baskets = {
@@ -56,56 +58,49 @@ selected_basket_name = st.selectbox(
 selected_basket_items = baskets[selected_basket_name]
 
 # ANALYSIS and VISUALISATION
-st.markdown(f"### Analysis for '{selected_basket_name}'")
-
-# Filter the pivot table to only include items in the basket
 basket_df = price_pivot[price_pivot.index.isin(selected_basket_items)]
 
-# Handle cases where no items from baskets are found
-if basket_df.empty:
-    st.warning("No products from this basket were found in the latest day's data. Please try another basket")
-else:
-    items_found = basket_df.notna().sum()
-    total_items_in_basket = len(selected_basket_items)
+# Calculate cost and coverage stats
+items_found = basket_df.notna().sum()
+basket_cost = basket_df.sum()
+total_items_in_basket = len(selected_basket_items)
 
-    # Cal. total cost
-    basket_cost = basket_df.sum()
+summary_df = pd.DataFrame({
+    "Total Cost (£)": basket_cost,
+    "Items Found": items_found,
+    "Coverage (%)": (items_found / total_items_in_basket) * 100
+}).sort_values("Total Cost (£)").reset_index()
 
-    # Summary
-    summary = pd.DataFrame({
-        "Total Cost (£)": basket_cost,
-        "Items Found": items_found,
-        "Items in Basket": total_items_in_basket
-    })
-    summary["Coverage (%)"] = round((summary["Items Found"] / summary["Items in Basket"]) * 100, 2)
-    summary = summary.sort_values("Total Cost (£)").reset_index().rename(columns={"index": "Supermarket"})
+# Set a consistent color palette
+palette = sns.color_palette("viridis", n_colors=len(summary_df))
 
-    col1, col2 = st.columns([2, 1])
+# Plot the main bar chart
+fig, ax = plt.subplots(figsize=(12, 6))
+sns.barplot(data=summary_df, x='supermarket', y='Total Cost (£)', palette=palette, ax=ax)
+ax.set_title(f"Cost of '{selected_basket_name}' Basket", fontsize=18, weight='bold')
+ax.set_xlabel("Supermarket", fontsize=12)
+ax.set_ylabel("Total Basket Price (£)", fontsize=12)
+plt.xticks(rotation=45, ha='right')
+plt.tight_layout()
+st.pyplot(fig)
 
-    with col1:
-        fig, ax = plt.subplots(figsize=(10, 6))
-        sns.barplot(data=summary, x="Supermarket", y="Total Cost (£)", palette="viridis", ax=ax)
-        ax.set_title(f"Cost of '{selected_basket_name}' Basket", fontsize=16)
-        plt.xticks(rotation=45, ha="right")
-        st.pyplot(fig)
+# --- Detailed Breakdown Table ---
+st.subheader("Detailed Basket Breakdown")
+st.markdown("The table below shows the total cost, the number of items found from the basket, and the percentage of the basket each supermarket was able to fulfill.")
+st.dataframe(summary_df, use_container_width=True)
 
-    with col2:
-        st.dataframe(
-            summary,
-            column_config={
-                "Total Cost (£)": st.column_config.NumberColumn(format="£%.2f"),
-            },
-            hide_index=True,
-            use_container_width=True
-        )
 
-st.markdown("---")
-with st.expander("How was this analysis possible? (The Tech Behind It)"):
+# --- Expander for Deeper Insights ---
+with st.expander("🔍 View Products in this Basket and Their Prices"):
+    st.markdown(f"**Showing {len(basket_df)} of {total_items_in_basket} products found in the database for the latest date.**")
+    st.dataframe(basket_df.style.format("{:.2f}", na_rep="Not Stocked").highlight_min(axis=1, color='#D4EDDA').highlight_max(axis=1, color='#F8D7DA'))
+
+with st.expander("💡 How was this analysis possible? (The Tech Behind It)"):
     st.markdown("""
     A simple text match on product names found only ~3,000 comparable products. To overcome this, I built an advanced pipeline:
     1.  **Text Normalization:** Cleaned and standardized over 127,000 unique product names.
     2.  **Sentence-BERT Embeddings:** Used the `e5-large` transformer model to convert product names into meaningful vector representations.
     3.  **FAISS Similarity Search:** Employed Facebook AI's high-speed vector search library to identify clusters of semantically identical products.
-
-    This process expanded our comparable product universe to over **67,000 items**, enabling this robust, multi-category basket analysis.            
-""")
+    
+    This process expanded our comparable product universe to over **67,000 items**, enabling this robust, multi-category basket analysis.
+    """)
