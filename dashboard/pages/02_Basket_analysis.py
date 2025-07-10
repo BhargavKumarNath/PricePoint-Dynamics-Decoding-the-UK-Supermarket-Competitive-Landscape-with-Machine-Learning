@@ -2,8 +2,6 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-import os
-import urllib.request
 
 st.set_page_config(layout="wide")
 st.title("🧺 Basket-Level Price Comparison") 
@@ -12,33 +10,17 @@ st.markdown("Here we compare the cost of standardised shopping baskets across su
 # DATA LOADING
 @st.cache_data
 def load_data():
-    local_path = "data/02_processed/canonical_products_e5.parquet"
-    
-    # Download from Google Drive if not present
-    if not os.path.exists(local_path):
-        os.makedirs(os.path.dirname(local_path), exist_ok=True)
-        url = "https://drive.google.com/uc?export=download&id=1n6YLOF71Pg3nZ8IAuFI8LcoY_yY-J65_"
-        try:
-            st.info("Downloading dataset from Google Drive...")
-            urllib.request.urlretrieve(url, local_path)
-        except Exception as e:
-            st.error(f"Download failed: {e}")
-            raise
-
-    # Load and process the data
-    df = pd.read_parquet(local_path)
+    df = pd.read_parquet("data/02_processed/canonical_products_e5.parquet")
     latest_date = df['date'].max()
     df_latest = df[df['date'] == latest_date].copy()
     
     df_latest = df_latest.drop_duplicates(subset=['canonical_name', 'supermarket'])
-
+    
     # Create the pivot table for easy lookups
     pivot = df_latest.pivot_table(index='canonical_name', columns='supermarket', values='prices')
     return pivot
 
-# Load data into variable
 price_pivot = load_data()
-
 
 # Basket DEFINITIONS
 baskets = {
