@@ -1,18 +1,64 @@
 import streamlit as st
 import pandas as pd
 import joblib
+import requests
+import os
+
 st.set_page_config(layout="wide")
 st.title("Interactive Price Predictor")
 st.markdown("Select a product's features using the sidebar to get a real time price prediction from our LightGBM model")
 
-# Load model
-@st.cache_resource
-def load_model_and_data():
-    model = joblib.load("models/price_predictor_lgbm.joblib")
-    df = pd.read_parquet("data/02_processed/feature_engineered_data.parquet")
-    return model, df
+def download_file_from_google_drive(id, destination):
+    """Downloads a file from Google Drive to a local path."""
+    URL = "https://docs.google.com/uc?export=download&id="
+    
+    # Check if file already exists to avoid re-downloading
+    if os.path.exists(destination):
+        print(f"{destination} already exists. Skipping download.")
+        return
 
-model, df = load_model_and_data()
+    session = requests.Session()
+    response = session.get(URL + id, stream=True)
+    
+    # Display a message while downloading
+    with st.spinner(f'Downloading {os.path.basename(destination)}... This may take a moment.'):
+        CHUNK_SIZE = 32768
+        with open(destination, "wb") as f:
+            for chunk in response.iter_content(CHUNK_SIZE):
+                if chunk:
+                    f.write(chunk)
+    print(f"Downloaded {destination} successfully.")
+
+
+# Load model
+# @st.cache_resource
+# def load_model_and_data():
+#     model = joblib.load("models/price_predictor_lgbm.joblib")
+#     df = pd.read_parquet("data/02_processed/feature_engineered_data.parquet")
+#     return model, df
+
+# model, df = load_model_and_data()
+@st.cache_resource
+def load_model():
+    """Downloads and loads the trained model."""
+    file_id = '1tpfhYrNqNRNyP1jh9nDxb0aaLleXLqnK'
+    file_path = 'price_predictor_lgbm.joblib'
+    download_file_from_google_drive(file_id, file_path)
+    return joblib.load(file_path)
+
+@st.cache_data
+def load_feature_data():
+    """Downloads and loads the feature-engineered dataset."""
+    file_id = '1q7e5bMiR6-e-2QjLuR0EOmLu6W-OFATK'
+    file_path = 'feature_engineered_data.parquet'
+    download_file_from_google_drive(file_id, file_path)
+    return pd.read_parquet(file_path)
+
+# Call the functions to get the model and data
+model = load_model()
+df = load_feature_data()
+
+
 
 st.sidebar.header("Product Features")
 

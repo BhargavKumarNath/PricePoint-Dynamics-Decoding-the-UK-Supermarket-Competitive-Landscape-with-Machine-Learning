@@ -3,6 +3,8 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from streamlit_agraph import agraph, Node, Edge, Config
+import requests
+import os
 
 st.set_page_config(page_title="Market Dynamics", layout="wide")
 
@@ -23,9 +25,35 @@ st.markdown("<h1 style='text-align: center; color: white;'>🌐 Market Dynamics 
 st.markdown("<p style='text-align: center;'>This section explores the strategic interactions between retailers over time, answering the question: **Who leads, and who follows?**</p>", unsafe_allow_html=True)
 st.divider()
 
+def download_file_from_google_drive(id, destination):
+    """Downloads a file from Google Drive to a local path."""
+    URL = "https://docs.google.com/uc?export=download&id="
+    
+    # Check if file already exists to avoid re-downloading
+    if os.path.exists(destination):
+        print(f"{destination} already exists. Skipping download.")
+        return
+
+    session = requests.Session()
+    response = session.get(URL + id, stream=True)
+    
+    # Display a message while downloading
+    with st.spinner(f'Downloading {os.path.basename(destination)}... This may take a moment.'):
+        CHUNK_SIZE = 32768
+        with open(destination, "wb") as f:
+            for chunk in response.iter_content(CHUNK_SIZE):
+                if chunk:
+                    f.write(chunk)
+    print(f"Downloaded {destination} successfully.")
+
+
 @st.cache_data
 def load_and_process_dynamics_data():
-    df = pd.read_parquet("data/02_processed/canonical_products_e5.parquet")
+    file_id = '1n6YLOF71Pg3nZ8IAuFI8LcoY_yY-J65_'
+    file_path = 'canonical_products_e5.parquet'
+    download_file_from_google_drive(file_id, file_path)
+
+    df = pd.read_parquet(file_path)
     df['date'] = pd.to_datetime(df['date'])
     
     daily_stats = df.groupby(['canonical_name', 'date'])['prices'].agg(['mean', 'std']).reset_index()
