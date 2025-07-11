@@ -58,14 +58,14 @@ The analysis revealed a stable, two-tiered market with highly predictable dynami
 
 ## Interactive Dashboard
 The project culminates in a powerful Streamlit dashboard designed for users to explore the complex world of supermarket pricing.
-    * **Market Overview**: Presents a consolidated view of product coverage and average pricing across major UK supermarkets, providing a high-level understanding of market composition.
+* **Market Overview**: Presents a consolidated view of product coverage and average pricing across major UK supermarkets, providing a high-level understanding of market composition.
 
-    * **Basket Analysis:** Facilitates direct, like-for-like price comparisons using standardized shopping baskets (e.g., “Essentials,” “Healthy Choice”), allowing for fair cross-retailer evaluation.
+* **Basket Analysis:** Facilitates direct, like-for-like price comparisons using standardized shopping baskets (e.g., “Essentials,” “Healthy Choice”), allowing for fair cross-retailer evaluation.
 
-    * **Price Predictor:** Offers an interactive forecasting tool powered by a trained machine learning model, enabling users to estimate future prices for any product across different retailers.
+* **Price Predictor:** Offers an interactive forecasting tool powered by a trained machine learning model, enabling users to estimate future prices for any product across different retailers.
 
-    * **Model Insights:** Delivers interpretability through SHAP-based visualizations, highlighting the most influential factors behind model predictions and ensuring transparency in decision logic.
+* **Model Insights:** Delivers interpretability through SHAP-based visualizations, highlighting the most influential factors behind model predictions and ensuring transparency in decision logic.
 
-    * **Market Dynamics:** Visualizes broader trends such as price leadership shifts and market-wide price dispersion over time, helping users understand underlying competitive behaviors.
-
+* **Market Dynamics:** Visualizes broader trends such as price leadership shifts and market-wide price dispersion over time, helping users understand underlying competitive behaviors.
+---
 
