@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-from data_loader import load_canonical_data # <-- IMPORT from your new loader
+from data_loader import load_canonical_data 
 
 st.set_page_config(layout="wide")
 st.title("🧺 Basket-Level Price Comparison") 
@@ -11,7 +11,7 @@ st.markdown("Here we compare the cost of standardised shopping baskets across su
 @st.cache_data
 def get_pivot_table():
     """Takes the loaded canonical data and creates the pivot table needed for this page."""
-    df = load_canonical_data() # <-- USE the loader function
+    df = load_canonical_data() 
     latest_date = pd.to_datetime(df['date']).max()
     df_latest = df[df['date'] == latest_date].copy()
     df_latest = df_latest.drop_duplicates(subset=['canonical_name', 'supermarket'])
@@ -21,7 +21,6 @@ def get_pivot_table():
 price_pivot = get_pivot_table()
 
 
-# Basket DEFINITIONS (Content unchanged)
 baskets = {
     "The Essentials": ['finest goat cheese caramelised red onion ravioli', 'gran luchito mexican crunchy jalapeño pineapple', 'lancashire farm greek style fat free yogurt', 'sma pro follow on baby milk liquid ready to feed', 'mamia organic tomato wheels', 'gallo risotto with tomato and basil', 'bodrum bodrum crispy fried onion', 'lindt classic recipe hazelnut milk chocolate bar', 'no added sugar apple pear juice drink cartons', 'sainsburys british fresh chicken breast pieces in a salt chilli breadcrumb coating', 'president french brie cheese', 'sainsburys cauliflower cheese', 'port salut french creamy cheese slices 6x20g', 'mutti baby roma tomatoes', 'up go banana honey breakfast shake'],
     "The Big Brand Shop": ['kelloggs krave chocolate hazelnut cereal', 'hovis original wheatgerm bread', 'walkers meaty variety crisps 12x25g', 'kelloggs cereal wheats blueberry', 'kelloggs sultana bran', 'heinz apple yoghurt 4 months', 'walkers salt vinegar multipack crisps 6x25g', 'starbucks cappuccino by nescafe d', 'heinz salad cream 70 less fat', 'nescafe dolce gusto cafe au lait coffee x16 pods 16 drinks', 'walkers 45 less salt salted crisps', 'nescafe gold blend instant coffee', 'heinz by nature sweet potato lean beef hotpot 12 months', 'kelloggs rice krispies curious caramel chocolate snack bars', 'walkers baked salt vinegar snacks crisps'],
@@ -38,16 +37,13 @@ baskets = {
     "Bakery": ['specially selected luxury chocolate brookies 4 pac', 'saint aubert 6 chocolate filled crepes', 'oven bottom muffins', 'dairyfine chocums cookies 4x60g', 'village bakery berry mini cupcakes', 'extra special white chocolate salted caramel cupcakes', 'iced coffee cake', 'schar gluten free white ciabatta rolls', 'the bakery at 6 bramley apple pies', 'thorntons celebration cake each', 'pataks flame baked peshwari naan breads', 'mr kipling chocolate slices', 'pagen gifflar cinnamon', 'finest chocolate caramel tear share brioche', 'cadbury milk chocolate mini rolls cakes x10', 'sainsburys birthday celebration loaded lemon cake taste the difference serves 14', 'sainsburys ancient grain pave taste the difference', 'oat and raisin cookies', 'schar wholesome white loaf', 'flapjack']
 }
 
-# INTERACTIVE SELECTION
 selected_basket_name = st.selectbox(
     "Choose a shopping basket to analyse:", options=list(baskets.keys())
 )
 selected_basket_items = baskets[selected_basket_name]
 
-# ANALYSIS and VISUALISATION
 basket_df = price_pivot[price_pivot.index.isin(selected_basket_items)]
 
-# Calculate cost and coverage stats
 items_found = basket_df.notna().sum()
 basket_cost = basket_df.sum()
 total_items_in_basket = len(selected_basket_items)
@@ -58,10 +54,8 @@ summary_df = pd.DataFrame({
     "Coverage (%)": (items_found / total_items_in_basket) * 100
 }).sort_values("Total Cost (£)").reset_index()
 
-# Set a consistent color palette
 palette = sns.color_palette("viridis", n_colors=len(summary_df))
 
-# Plot the main bar chart
 fig, ax = plt.subplots(figsize=(12, 6))
 sns.barplot(data=summary_df, x='supermarket', y='Total Cost (£)', palette=palette, ax=ax)
 ax.set_title(f"Cost of '{selected_basket_name}' Basket", fontsize=18, weight='bold')
@@ -71,13 +65,11 @@ plt.xticks(rotation=45, ha='right')
 plt.tight_layout()
 st.pyplot(fig)
 
-# Detailed Breakdown Table
 st.subheader("Detailed Basket Breakdown")
 st.markdown("The table below shows the total cost, the number of items found from the basket, and the percentage of the basket each supermarket was able to fulfill.")
 st.dataframe(summary_df, use_container_width=True)
 
 
-# Expander for Deeper Insights
 with st.expander("View Products in this Basket and Their Prices"):
     st.markdown(f"**Showing {len(basket_df)} of {total_items_in_basket} products found in the database for the latest date.**")
     st.dataframe(basket_df.style.format("{:.2f}", na_rep="Not Stocked").highlight_min(axis=1, color='#D4EDDA').highlight_max(axis=1, color='#F8D7DA'))

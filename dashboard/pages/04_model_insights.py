@@ -29,7 +29,7 @@ st.markdown("<p style='text-align: center;'>This page delves into the 'brain' of
 st.divider()
 
 
-# Load Model and Data (Simplified) 
+# Load Model and Data  
 model = load_model()
 df_model = load_features_data() 
 

@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-from data_loader import load_canonical_data # <-- IMPORT from your new loader
+from data_loader import load_canonical_data 
 
 
 # Page Configuration 
@@ -29,7 +29,7 @@ st.markdown("<p style='text-align: center;'>A 30,000-foot view of the UK superma
 st.divider()
 
 #  Data Loading 
-df = load_canonical_data() # <-- USE the loader function
+df = load_canonical_data()
 
 # Section 1: Pricing and Portfolio Analysis 
 st.subheader("At a Glance: Pricing & Portfolio")
@@ -83,7 +83,7 @@ st.divider()
 
 # Section 2: Own Brand Strategy Analysis 
 st.subheader("Deep Dive: Own Brand Strategy")
-col3, col4 = st.columns([1, 2]) # Give the plot more space
+col3, col4 = st.columns([1, 2]) 
 
 with col3:
     with st.container(border=True, height=450): 

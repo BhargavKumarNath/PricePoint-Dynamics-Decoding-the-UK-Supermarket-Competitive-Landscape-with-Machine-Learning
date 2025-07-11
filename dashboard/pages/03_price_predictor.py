@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import joblib
-from data_loader import load_model, load_features_data, get_raw_features_df # <-- IMPORT get_raw_features_df
+from data_loader import load_model, load_features_data, get_raw_features_df 
 
 st.set_page_config(layout="wide")
 st.title("Interactive Price Predictor")
@@ -10,7 +10,7 @@ st.markdown("Select a product's features using the sidebar to get a real time pr
 # Load Model and Data
 model = load_model()
 df_model_processed = load_features_data()
-df = get_raw_features_df() # <-- USE THE LOADER
+df = get_raw_features_df() 
 
 st.sidebar.header("Product Features")
 
@@ -37,20 +37,18 @@ supermarket = st.sidebar.selectbox(
     options=['Aldi', 'ASDA', 'Morrisons', 'Sains', 'Tesco']
 )
 
-# CREATE FEATURE VECTOR from INPUTS
 def prepare_input_data(user_input, original_columns):
     input_df = pd.DataFrame([user_input])
     # One hot encode the supermarket
     input_df["supermarket"] = supermarket
     input_df = pd.get_dummies(input_df, columns=["supermarket"])
 
-    # Align columns with the model's training columns
     model_columns = pd.DataFrame(columns=original_columns)
     final_df = pd.concat([model_columns, input_df]).fillna(0)
     return final_df[original_columns]
 
 # PREDICTION
-if st.sidebar.button("Predict Price"): # Changed to sidebar button for better UI
+if st.sidebar.button("Predict Price"): 
     user_data = {
         'price_lag_1d': price_lag_1d,
         'price_rol_mean_7d': price_rol_mean_7d,
