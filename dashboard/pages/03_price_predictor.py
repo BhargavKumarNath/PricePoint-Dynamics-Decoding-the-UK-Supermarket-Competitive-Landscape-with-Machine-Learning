@@ -1,21 +1,16 @@
 import streamlit as st
 import pandas as pd
 import joblib
-from data_loader import load_model, load_features_data
+from data_loader import load_model, load_features_data, get_raw_features_df # <-- IMPORT get_raw_features_df
 
 st.set_page_config(layout="wide")
 st.title("Interactive Price Predictor")
 st.markdown("Select a product's features using the sidebar to get a real time price prediction from our LightGBM model")
 
-# Load Model and Data 
+# Load Model and Data
 model = load_model()
-df_model_processed = load_features_data() 
-
-@st.cache_data
-def get_raw_features_df():
-    return pd.read_parquet("feature_engineered_data.parquet")
-
-df = get_raw_features_df()
+df_model_processed = load_features_data()
+df = get_raw_features_df() # <-- USE THE LOADER
 
 st.sidebar.header("Product Features")
 
@@ -55,7 +50,7 @@ def prepare_input_data(user_input, original_columns):
     return final_df[original_columns]
 
 # PREDICTION
-if st.button("Product Price"):
+if st.sidebar.button("Predict Price"): # Changed to sidebar button for better UI
     user_data = {
         'price_lag_1d': price_lag_1d,
         'price_rol_mean_7d': price_rol_mean_7d,
@@ -69,4 +64,3 @@ if st.button("Product Price"):
     prediction = model.predict(input_vector)[0]
     st.success(f"Predicted Price: £{prediction:.2f}")
     st.balloons()
-    

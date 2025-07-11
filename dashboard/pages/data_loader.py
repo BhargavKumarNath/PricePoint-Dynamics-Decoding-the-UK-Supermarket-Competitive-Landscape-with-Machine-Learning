@@ -49,12 +49,17 @@ def load_canonical_data():
     return pd.read_parquet(file_path)
 
 @st.cache_data
-def load_features_data():
-    """Downloads and loads the feature-engineered dataset."""
+def get_raw_features_df():
+    """Downloads and reads the raw feature-engineered parquet file."""
     file_path = "feature_engineered_data.parquet"
     file_id = FILES_TO_DOWNLOAD[file_path]
     download_file_from_google_drive(file_id, file_path)
-    df = pd.read_parquet(file_path)
+    return pd.read_parquet(file_path)
+
+@st.cache_data
+def load_features_data():
+    """Loads and preprocesses the feature-engineered dataset for the model."""
+    df = get_raw_features_df() # Use the function above to get the data
     df_model = pd.get_dummies(df, columns=['supermarket', 'category'], drop_first=True)
     df_model = df_model.dropna()
     return df_model

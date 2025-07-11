@@ -8,3 +8,5 @@ faiss-cpu
 sentence-transformers
 streamlit_agraph
 requests
+joblib
+shap
