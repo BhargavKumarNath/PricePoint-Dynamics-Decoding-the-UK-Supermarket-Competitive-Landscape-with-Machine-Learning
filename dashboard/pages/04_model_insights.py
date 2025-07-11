@@ -4,8 +4,7 @@ import joblib
 import shap
 import matplotlib.pyplot as plt
 import streamlit.components.v1 as components
-import requests
-import os
+from data_loader import load_model, load_features_data 
 
 # Page Configuration
 st.set_page_config(page_title="Model Insights", layout="wide")
@@ -29,64 +28,10 @@ st.markdown("<h1 style='text-align: center; color: white;'>🧠 Model Insights &
 st.markdown("<p style='text-align: center;'>This page delves into the 'brain' of our price prediction model. We use SHAP to understand not just *what* the model predicts, but *why*.</p>", unsafe_allow_html=True)
 st.divider()
 
-def download_file_from_google_drive(id, destination):
-    """Downloads a file from Google Drive to a local path."""
-    URL = "https://docs.google.com/uc?export=download&id="
-    
-    # Check if file already exists to avoid re-downloading
-    if os.path.exists(destination):
-        print(f"{destination} already exists. Skipping download.")
-        return
 
-    session = requests.Session()
-    response = session.get(URL + id, stream=True)
-    
-    # Display a message while downloading
-    with st.spinner(f'Downloading {os.path.basename(destination)}... This may take a moment.'):
-        CHUNK_SIZE = 32768
-        with open(destination, "wb") as f:
-            for chunk in response.iter_content(CHUNK_SIZE):
-                if chunk:
-                    f.write(chunk)
-    print(f"Downloaded {destination} successfully.")
-
-
-# # Load Model and Data (Cached)
-# @st.cache_resource
-# def load_model():
-#     return joblib.load("models/price_predictor_lgbm.joblib")
-
-# @st.cache_data
-# def load_data():
-#     df = pd.read_parquet("data/02_processed/feature_engineered_data.parquet")
-#     df_model = pd.get_dummies(df, columns=['supermarket', 'category'], drop_first=True)
-#     df_model = df_model.dropna()
-#     return df_model
-
-# model = load_model()
-# df_model = load_data()
-@st.cache_resource
-def load_model():
-    file_id = '1tpfhYrNqNRNyP1jh9nDxb0aaLleXLqnK'
-    file_path = 'price_predictor_lgbm.joblib'
-    download_file_from_google_drive(file_id, file_path)
-    return joblib.load(file_path)
-
-@st.cache_data
-def load_data():
-    file_id = '1q7e5bMiR6-e-2QjLuR0EOmLu6W-OFATK'
-    file_path = 'feature_engineered_data.parquet'
-    download_file_from_google_drive(file_id, file_path)
-    
-    df = pd.read_parquet(file_path)
-    df_model = pd.get_dummies(df, columns=['supermarket', 'category'], drop_first=True)
-    df_model = df_model.dropna()
-    return df_model
-
+# Load Model and Data (Simplified) 
 model = load_model()
-df_model = load_data()
-
-
+df_model = load_features_data() 
 
 # Model Performance
 with st.container(border=True):

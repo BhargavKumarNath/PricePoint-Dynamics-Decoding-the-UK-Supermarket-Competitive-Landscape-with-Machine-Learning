@@ -3,79 +3,52 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from streamlit_agraph import agraph, Node, Edge, Config
-import requests # <-- Import requests
-import os       # <-- Import os
+from data_loader import load_canonical_data  # <-- IMPORT from your new loader
 
 # --- Page Configuration ---
 st.set_page_config(page_title="Market Dynamics", layout="wide")
 
-# --- GOOGLE DRIVE DOWNLOAD HELPER ---
-# This is the crucial function that was missing
-def download_file_from_google_drive(id, destination):
-    """Downloads a file from Google Drive to a local path."""
-    URL = "https://docs.google.com/uc?export=download&id="
-    
-    if os.path.exists(destination):
-        return # File already exists, no need to download
-
-    session = requests.Session()
-    response = session.get(URL + id, stream=True)
-    token = get_confirm_token(response)
-
-    if token:
-        params = {'id': id, 'confirm': token}
-        response = session.get(URL, params=params, stream=True)
-
-    with st.spinner(f'Downloading required data ({os.path.basename(destination)})... This may take a moment.'):
-        save_response_content(response, destination)
-
-def get_confirm_token(response):
-    for key, value in response.cookies.items():
-        if key.startswith('download_warning'):
-            return value
-    return None
-
-def save_response_content(response, destination):
-    CHUNK_SIZE = 32768
-    with open(destination, "wb") as f:
-        for chunk in response.iter_content(CHUNK_SIZE):
-            if chunk:
-                f.write(chunk)
-
 # --- Custom Styling Function for Matplotlib Plots ---
 def set_plot_style():
+    """Sets a consistent, dark-themed style for all matplotlib plots."""
     plt.style.use('dark_background')
-    # (Rest of the styling function as before)
+    plt.rcParams.update({
+        'axes.facecolor': '#0E1117',
+        'figure.facecolor': '#0E1117',
+        'axes.edgecolor': '#B0B0B0',
+        'axes.labelcolor': '#B0B0B0',
+        'xtick.color': '#B0B0B0',
+        'ytick.color': '#B0B0B0',
+        'text.color': '#FFFFFF',
+        'legend.facecolor': '#1E1E1E',
+    })
 
 # --- Header ---
 st.markdown("<h1 style='text-align: center; color: white;'>🌐 Market Dynamics & Price Leadership</h1>", unsafe_allow_html=True)
 st.markdown("<p style='text-align: center;'>This section explores the strategic interactions between retailers over time, answering the question: **Who leads, and who follows?**</p>", unsafe_allow_html=True)
 st.divider()
 
-# --- Data Loading (Cached) ---
+#  Data Loading and Processing (Cached) 
 @st.cache_data
-def load_and_process_dynamics_data():
-    # --- THIS IS THE CRITICAL FIX ---
-    # First, download the file from Google Drive
-    file_id = '1n6YLOF71Pg3nZ8IAuFI8LcoY_yY-J65_'
-    file_path = 'canonical_products_e5.parquet'
-    download_file_from_google_drive(file_id, file_path)
-    # --- END OF FIX ---
-    
-    # Now, read the file that has been downloaded
-    df = pd.read_parquet(file_path)
+def process_dynamics_data():
+    """
+    Loads data using the central loader and performs all heavy calculations
+    for the market dynamics page.
+    """
+    df = load_canonical_data()  
     df['date'] = pd.to_datetime(df['date'])
     
-    # The rest of the processing is the same...
+    #  Price Dispersion Calculation 
     daily_stats = df.groupby(['canonical_name', 'date'])['prices'].agg(['mean', 'std']).reset_index()
     daily_stats['dispersion'] = np.where(daily_stats['mean'] > 0, daily_stats['std'] / daily_stats['mean'], 0)
     market_dispersion = daily_stats.groupby('date')['dispersion'].mean()
     
+    #  Price Leadership Calculation 
     price_pivot = df.pivot_table(index='date', columns=['supermarket', 'canonical_name'], values='prices').ffill()
     supermarkets = df['supermarket'].unique()
     leader_results = []
     
-    # (The rest of the leadership calculation logic remains the same)
+    # Using a smaller sample for faster dashboard loading
     sampled_products = np.random.choice(price_pivot.columns.get_level_values(1).unique(), 300, replace=False)
     
     for leader in supermarkets:
@@ -91,7 +64,7 @@ def load_and_process_dynamics_data():
                     
                     max_lag = 7
                     corrs = [series1.corr(series2.shift(lag)) for lag in range(-max_lag, max_lag + 1)]
-                    if np.nanmax(np.abs(corrs)) > 0.15:
+                    if np.nanmax(np.abs(corrs)) > 0.15: # Use a threshold
                         lag_val = np.arange(-max_lag, max_lag + 1)[np.nanargmax(np.abs(corrs))]
                         lags.append(lag_val)
                 except KeyError:
@@ -106,10 +79,11 @@ def load_and_process_dynamics_data():
     leader_df = pd.DataFrame(leader_results)
     return market_dispersion, leader_df
 
-market_dispersion, leader_df = load_and_process_dynamics_data()
+# Call the function to get the processed data
+market_dispersion, leader_df = process_dynamics_data()
 
-
-tab1, tab2 = st.tabs(["Market Competitiveness", "Price Leadership Network"])
+# Use Tabs for Different Analyses 
+tab1, tab2 = st.tabs(["📊 Market Competitiveness", "👑 Price Leadership Network"])
 
 with tab1:
     with st.container(border=True):
@@ -125,6 +99,9 @@ with tab1:
         ax.set_xlabel("Date")
         ax.legend()
         st.pyplot(fig, use_container_width=True)
+        st.markdown("""
+        **Insight:** After a volatile period in mid-January (likely post-holiday sales), the market settled into a **stable equilibrium**. The level of price difference between retailers is not escalating into a price war, nor is it diminishing. Each retailer is holding its strategic ground.
+        """)
 
 with tab2:
     with st.container(border=True):
@@ -136,7 +113,9 @@ with tab2:
         
         node_colors = {'Aldi': '#FF4B4B', 'ASDA': '#3DDC97', 'Morrisons': '#FFAF4B', 'Sains': '#966DFF', 'Tesco': '#4B8BFF'}
 
-        for retailer in leader_df['leader'].unique():
+        # Ensure all supermarkets are added as nodes, even if they have no connections in the sample
+        all_supermarkets = df['supermarket'].unique()
+        for retailer in all_supermarkets:
             nodes.append(Node(id=retailer, 
                              label=retailer, 
                              size=25,
@@ -158,7 +137,7 @@ with tab2:
                                  font={'color': 'white', 'size': 14, 'strokeWidth': 0},
                                  arrows='to'))
         
-        config = Config(width='100%', # Make the graph responsive
+        config = Config(width='100%',
                         height=600, 
                         directed=True,
                         physics={
@@ -174,9 +153,7 @@ with tab2:
                         interaction={'navigationButtons': True, 'tooltipDelay': 200},
                         nodeHighlightBehavior=True)
         
-        # --- THIS IS THE FIX FOR THE LAYOUT ---
-        # Create 3 columns: an empty one, one for the graph, and another empty one.
-        # This forces the graph into the center of the page.
+        # Center the graph using columns
         col1, col2, col3 = st.columns([1, 6, 1])
         with col2:
              agraph(nodes=nodes, edges=edges, config=config)

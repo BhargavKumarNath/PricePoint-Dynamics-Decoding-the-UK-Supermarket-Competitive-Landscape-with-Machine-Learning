@@ -2,8 +2,8 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-import requests
-import os
+from data_loader import load_canonical_data # <-- IMPORT
+
 
 # Page Configuration 
 st.set_page_config(page_title="Market Overview", layout="wide")
@@ -28,39 +28,8 @@ st.markdown("<h1 style='text-align: center; color: white;'>📈 Market Overview<
 st.markdown("<p style='text-align: center;'>A 30,000-foot view of the UK supermarket landscape, exploring each retailer's pricing strategy, product portfolio, and category focus.</p>", unsafe_allow_html=True)
 st.divider()
 
-# --- GOOGLE DRIVE DOWNLOAD HELPER ---
-def download_file_from_google_drive(id, destination):
-    """Downloads a file from Google Drive to a local path."""
-    URL = "https://docs.google.com/uc?export=download&id="
-    
-    # Check if file already exists to avoid re-downloading
-    if os.path.exists(destination):
-        print(f"{destination} already exists. Skipping download.")
-        return
-
-    session = requests.Session()
-    response = session.get(URL + id, stream=True)
-    
-    with st.spinner(f'Downloading {os.path.basename(destination)}... This may take a moment.'):
-        CHUNK_SIZE = 32768
-        with open(destination, "wb") as f:
-            for chunk in response.iter_content(CHUNK_SIZE):
-                if chunk:
-                    f.write(chunk)
-    print(f"Downloaded {destination} successfully.")
-
 #  Data Loading 
-@st.cache_data
-def load_data():
-    file_id = '1n6YLOF71Pg3nZ8IAuFI8LcoY_yY-J65_'
-    file_path = 'canonical_products_e5.parquet'
-    
-    download_file_from_google_drive(file_id, file_path)
-    
-    df = pd.read_parquet(file_path)
-    return df
-
-df = load_data()
+df = load_canonical_data()
 
 # Section 1: Pricing and Portfolio Analysis 
 st.subheader("At a Glance: Pricing & Portfolio")

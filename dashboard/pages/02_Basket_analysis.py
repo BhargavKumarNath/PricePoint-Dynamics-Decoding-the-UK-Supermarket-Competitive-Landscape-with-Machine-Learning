@@ -2,61 +2,24 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-import requests
-import os
+from data_loader import load_canonical_data 
 
 st.set_page_config(layout="wide")
 st.title("🧺 Basket-Level Price Comparison") 
 st.markdown("Here we compare the cost of standardised shopping baskets across supermarkets, powered by our advanced prodct matching model")
 
-# --- GOOGLE DRIVE DOWNLOAD HELPER ---
-def download_file_from_google_drive(id, destination):
-    """Downloads a file from Google Drive to a local path."""
-    URL = "https://docs.google.com/uc?export=download&id="
-    
-    # Check if file already exists to avoid re-downloading
-    if os.path.exists(destination):
-        print(f"{destination} already exists. Skipping download.")
-        return
-
-    session = requests.Session()
-    response = session.get(URL + id, stream=True)
-    
-    # Display a message while downloading
-    with st.spinner(f'Downloading {os.path.basename(destination)}... This may take a moment.'):
-        CHUNK_SIZE = 32768
-        with open(destination, "wb") as f:
-            for chunk in response.iter_content(CHUNK_SIZE):
-                if chunk:
-                    f.write(chunk)
-    print(f"Downloaded {destination} successfully.")
-
-
-# DATA LOADING
-# @st.cache_data
-# def load_data():
-#     df = pd.read_parquet("data/02_processed/canonical_products_e5.parquet")
-#     latest_date = df['date'].max()
-#     df_latest = df[df['date'] == latest_date].copy()
-    
-#     df_latest = df_latest.drop_duplicates(subset=['canonical_name', 'supermarket'])
-    
-#     # Create the pivot table for easy lookups
-#     pivot = df_latest.pivot_table(index='canonical_name', columns='supermarket', values='prices')
-#     return pivot
-
-# price_pivot = load_data()
 @st.cache_data
-def load_data():
-    file_id = '1n6YLOF71Pg3nZ8IAuFI8LcoY_yY-J65_'
-    file_path = 'canonical_products_e5.parquet'
-    
-    download_file_from_google_drive(file_id, file_path)
-    
-    df = pd.read_parquet(file_path)
-    return df
+def get_pivot_table():
+    """Takes the loaded canonical data and creates the pivot table needed for this page."""
+    df = load_canonical_data()
+    latest_date = pd.to_datetime(df['date']).max()
+    df_latest = df[df['date'] == latest_date].copy()
+    df_latest = df_latest.drop_duplicates(subset=['canonical_name', 'supermarket'])
+    pivot = df_latest.pivot_table(index='canonical_name', columns='supermarket', values='prices')
+    return pivot
 
-price_pivot = load_data()
+price_pivot = get_pivot_table()
+
 
 # Basket DEFINITIONS
 baskets = {
