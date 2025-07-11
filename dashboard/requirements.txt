@@ -10,3 +10,4 @@ streamlit_agraph
 requests
 joblib
 shap
+lightgbm

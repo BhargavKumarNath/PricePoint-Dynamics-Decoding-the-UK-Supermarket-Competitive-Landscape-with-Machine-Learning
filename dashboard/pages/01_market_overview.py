@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-from data_loader import load_canonical_data # <-- IMPORT
+from data_loader import load_canonical_data # <-- IMPORT from your new loader
 
 
 # Page Configuration 
@@ -29,7 +29,7 @@ st.markdown("<p style='text-align: center;'>A 30,000-foot view of the UK superma
 st.divider()
 
 #  Data Loading 
-df = load_canonical_data()
+df = load_canonical_data() # <-- USE the loader function
 
 # Section 1: Pricing and Portfolio Analysis 
 st.subheader("At a Glance: Pricing & Portfolio")

@@ -35,7 +35,7 @@ def process_dynamics_data():
     Loads data using the central loader and performs all heavy calculations
     for the market dynamics page.
     """
-    df = load_canonical_data()  
+    df = load_canonical_data()  # <-- USE the loader function
     df['date'] = pd.to_datetime(df['date'])
     
     #  Price Dispersion Calculation 
@@ -111,11 +111,14 @@ with tab2:
         nodes = []
         edges = []
         
-        node_colors = {'Aldi': '#FF4B4B', 'ASDA': '#3DDC97', 'Morrisons': '#FFAF4B', 'Sains': '#966DFF', 'Tesco': '#4B8BFF'}
+        # Use a consistent node color map
+        all_supermarkets_list = ['Aldi', 'ASDA', 'Morrisons', 'Sains', 'Tesco']
+        node_colors = {
+            'Aldi': '#FF4B4B', 'ASDA': '#3DDC97', 'Morrisons': '#FFAF4B', 
+            'Sains': '#966DFF', 'Tesco': '#4B8BFF'
+        }
 
-        # Ensure all supermarkets are added as nodes, even if they have no connections in the sample
-        all_supermarkets = df['supermarket'].unique()
-        for retailer in all_supermarkets:
+        for retailer in all_supermarkets_list:
             nodes.append(Node(id=retailer, 
                              label=retailer, 
                              size=25,
