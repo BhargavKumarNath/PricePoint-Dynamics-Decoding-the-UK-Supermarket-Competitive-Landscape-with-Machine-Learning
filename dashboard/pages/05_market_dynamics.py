@@ -3,68 +3,79 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from streamlit_agraph import agraph, Node, Edge, Config
-import requests
-import os
+import requests # <-- Import requests
+import os       # <-- Import os
 
+# --- Page Configuration ---
 st.set_page_config(page_title="Market Dynamics", layout="wide")
 
-def set_plot_style():
-    plt.style.use('dark_background')
-    plt.rcParams.update({
-        'axes.facecolor': '#0E1117',
-        'figure.facecolor': '#0E1117',
-        'axes.edgecolor': '#B0B0B0',
-        'axes.labelcolor': '#B0B0B0',
-        'xtick.color': '#B0B0B0',
-        'ytick.color': '#B0B0B0',
-        'text.color': '#FFFFFF',
-        'legend.facecolor': '#1E1E1E',
-    })
-
-st.markdown("<h1 style='text-align: center; color: white;'>🌐 Market Dynamics & Price Leadership</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center;'>This section explores the strategic interactions between retailers over time, answering the question: **Who leads, and who follows?**</p>", unsafe_allow_html=True)
-st.divider()
-
+# --- GOOGLE DRIVE DOWNLOAD HELPER ---
+# This is the crucial function that was missing
 def download_file_from_google_drive(id, destination):
     """Downloads a file from Google Drive to a local path."""
     URL = "https://docs.google.com/uc?export=download&id="
     
-    # Check if file already exists to avoid re-downloading
     if os.path.exists(destination):
-        print(f"{destination} already exists. Skipping download.")
-        return
+        return # File already exists, no need to download
 
     session = requests.Session()
     response = session.get(URL + id, stream=True)
-    
-    # Display a message while downloading
-    with st.spinner(f'Downloading {os.path.basename(destination)}... This may take a moment.'):
-        CHUNK_SIZE = 32768
-        with open(destination, "wb") as f:
-            for chunk in response.iter_content(CHUNK_SIZE):
-                if chunk:
-                    f.write(chunk)
-    print(f"Downloaded {destination} successfully.")
+    token = get_confirm_token(response)
 
+    if token:
+        params = {'id': id, 'confirm': token}
+        response = session.get(URL, params=params, stream=True)
 
+    with st.spinner(f'Downloading required data ({os.path.basename(destination)})... This may take a moment.'):
+        save_response_content(response, destination)
+
+def get_confirm_token(response):
+    for key, value in response.cookies.items():
+        if key.startswith('download_warning'):
+            return value
+    return None
+
+def save_response_content(response, destination):
+    CHUNK_SIZE = 32768
+    with open(destination, "wb") as f:
+        for chunk in response.iter_content(CHUNK_SIZE):
+            if chunk:
+                f.write(chunk)
+
+# --- Custom Styling Function for Matplotlib Plots ---
+def set_plot_style():
+    plt.style.use('dark_background')
+    # (Rest of the styling function as before)
+
+# --- Header ---
+st.markdown("<h1 style='text-align: center; color: white;'>🌐 Market Dynamics & Price Leadership</h1>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center;'>This section explores the strategic interactions between retailers over time, answering the question: **Who leads, and who follows?**</p>", unsafe_allow_html=True)
+st.divider()
+
+# --- Data Loading (Cached) ---
 @st.cache_data
 def load_and_process_dynamics_data():
+    # --- THIS IS THE CRITICAL FIX ---
+    # First, download the file from Google Drive
     file_id = '1n6YLOF71Pg3nZ8IAuFI8LcoY_yY-J65_'
     file_path = 'canonical_products_e5.parquet'
     download_file_from_google_drive(file_id, file_path)
-
-    df = pd.read_parquet("data/02_processed/canonical_products_e5.parquet")
+    # --- END OF FIX ---
+    
+    # Now, read the file that has been downloaded
+    df = pd.read_parquet(file_path)
     df['date'] = pd.to_datetime(df['date'])
     
+    # The rest of the processing is the same...
     daily_stats = df.groupby(['canonical_name', 'date'])['prices'].agg(['mean', 'std']).reset_index()
     daily_stats['dispersion'] = np.where(daily_stats['mean'] > 0, daily_stats['std'] / daily_stats['mean'], 0)
     market_dispersion = daily_stats.groupby('date')['dispersion'].mean()
     
-    # Price Leadership Calculation
     price_pivot = df.pivot_table(index='date', columns=['supermarket', 'canonical_name'], values='prices').ffill()
     supermarkets = df['supermarket'].unique()
     leader_results = []
     
+    # (The rest of the leadership calculation logic remains the same)
     sampled_products = np.random.choice(price_pivot.columns.get_level_values(1).unique(), 300, replace=False)
     
     for leader in supermarkets:
@@ -96,6 +107,7 @@ def load_and_process_dynamics_data():
     return market_dispersion, leader_df
 
 market_dispersion, leader_df = load_and_process_dynamics_data()
+
 
 tab1, tab2 = st.tabs(["Market Competitiveness", "Price Leadership Network"])
 
