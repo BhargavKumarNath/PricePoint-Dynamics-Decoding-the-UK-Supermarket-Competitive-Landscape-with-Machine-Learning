@@ -1,4 +1,4 @@
-# PricePoint Dynamics: A Deep Dive into UK Supermarket Competition with ML
+# PricePoint Dynamics: A Deep Dive into UK Supermarket Competition with Machine Learning
 
 ## Overview
 
