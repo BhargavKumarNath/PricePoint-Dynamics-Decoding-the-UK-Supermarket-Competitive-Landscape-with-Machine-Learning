@@ -5,9 +5,9 @@ import gdown
 import os
 
 FILES_TO_DOWNLOAD = {
-    "canonical_products_e5.parquet": "1n6YLOF71Pg3nZ8IAuFI8LcoY_yY-J65_",
-    "feature_engineered_data.parquet": "1q7e5bMiR6-e-2QjLuR0EOmLu6W-OFATK",
-    "price_predictor_lgbm.joblib": "1tpfhYrNqNRNyP1jh9nDxb0aaLleXLqnK"
+    "canonical_products_e5.parquet": "1YS2k15a6hhu15_KmRpMLo_bh76BxwFLt",
+    "feature_engineered_data.parquet": "1RIs1hNG60uMgwJGWKAHNAWXeDHf7hscf",
+    "price_predictor_lgbm.joblib": "1_btm3rfSbA-RJQZZTBxDPKchP0gkxIWN"
 }
 
 def download_file_from_google_drive(id, destination):
