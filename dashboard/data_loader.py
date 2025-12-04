@@ -23,11 +23,23 @@ def download_file_from_google_drive(id, destination):
 
 @st.cache_data
 def load_canonical_data():
-    """Downloads and loads the canonical products dataset."""
+    """Downloads and loads the canonical products dataset with memory optimization."""
     file_path = "canonical_products_e5.parquet"
     file_id = FILES_TO_DOWNLOAD[file_path]
     download_file_from_google_drive(file_id, file_path)
-    return pd.read_parquet(file_path)
+    
+    # Load only necessary columns
+    columns = ['supermarket', 'prices', 'canonical_name', 'own_brand', 'date']
+    df = pd.read_parquet(file_path, columns=columns)
+    
+    # Optimize memory usage
+    df['supermarket'] = df['supermarket'].astype('category')
+    df['own_brand'] = df['own_brand'].astype('category')
+    df['canonical_name'] = df['canonical_name'].astype('category')
+    df['prices'] = pd.to_numeric(df['prices'], downcast='float')
+    df['date'] = pd.to_datetime(df['date'])
+    
+    return df
 
 @st.cache_data
 def get_raw_features_df():
