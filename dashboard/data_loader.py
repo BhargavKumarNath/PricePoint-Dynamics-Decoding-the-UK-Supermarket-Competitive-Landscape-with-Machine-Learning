@@ -27,7 +27,7 @@ def load_canonical_data():
     file_id = FILES_TO_DOWNLOAD[file_path]
     download_file_from_google_drive(file_id, file_path)
     
-    # OPTIMIZATION 1: Load specific columns with pyarrow engine
+    # Load specific columns with pyarrow engine
     columns = ['supermarket', 'prices', 'canonical_name', 'own_brand', 'date']
     df = pd.read_parquet(file_path, columns=columns, engine='pyarrow')
     
@@ -46,7 +46,7 @@ def get_raw_features_df():
     file_id = FILES_TO_DOWNLOAD[file_path]
     download_file_from_google_drive(file_id, file_path)
     
-    # OPTIMIZATION 2: Use dtype_backend='pyarrow'
+    # Use dtype_backend='pyarrow' for memory efficiency
     df = pd.read_parquet(
         file_path, 
         engine='pyarrow', 
@@ -55,26 +55,54 @@ def get_raw_features_df():
     return df
 
 @st.cache_data
-def load_features_sample(sample_size=1000):
-    """Loads a sample of the feature data and aligns columns."""
-    df = get_raw_features_df()
+def load_features_sample(sample_size=500):
+    """
+    Loads a SMALL sample of feature data, processes it efficiently,
+    and aligns columns with the model's expected features.
     
-    if len(df) > sample_size:
-        df = df.sample(sample_size, random_state=42)
+    CRITICAL: This must be FAST and memory-efficient for Streamlit Cloud.
+    """
+    file_path = "feature_engineered_data.parquet"
+    file_id = FILES_TO_DOWNLOAD[file_path]
+    download_file_from_google_drive(file_id, file_path)
+    
+    # Read the file to get row count first
+    import pyarrow.parquet as pq
+    parquet_file = pq.ParquetFile(file_path)
+    total_rows = parquet_file.metadata.num_rows
+    
+    # Calculate which rows to read (evenly distributed sample)
+    if total_rows > sample_size:
+        step = total_rows // sample_size
+        row_indices = list(range(0, total_rows, step))[:sample_size]
+    else:
+        row_indices = list(range(total_rows))
+    
+    # Read only sampled rows
+    table = parquet_file.read(row_indices)
+    df = table.to_pandas()
+    
+    # Convert pyarrow types to standard pandas types to avoid issues
+    for col in df.select_dtypes(include=['object']).columns:
+        if df[col].dtype.name.startswith('string'):
+            df[col] = df[col].astype(str)
     
     df_encoded = pd.get_dummies(df, columns=['supermarket', 'category'], drop_first=True)
     
-    file_path = "price_predictor_lgbm.joblib"
-    file_id = FILES_TO_DOWNLOAD[file_path]
-    download_file_from_google_drive(file_id, file_path)
-    model = joblib.load(file_path)
+    model = load_model()
     model_features = model.feature_name_
     
+    # Add missing columns with 0
     missing_cols = set(model_features) - set(df_encoded.columns)
     for c in missing_cols:
         df_encoded[c] = 0
-        
+    
+    # Remove extra columns and reorder
     df_encoded = df_encoded[model_features]
+    
+    for col in df_encoded.select_dtypes(include=['float64']).columns:
+        df_encoded[col] = pd.to_numeric(df_encoded[col], downcast='float')
+    
     return df_encoded
 
 @st.cache_resource

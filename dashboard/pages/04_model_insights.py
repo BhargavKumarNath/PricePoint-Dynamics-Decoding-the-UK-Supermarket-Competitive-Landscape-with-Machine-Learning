@@ -28,10 +28,11 @@ st.markdown("<h1 style='text-align: center; color: white;'>🧠 Model Insights &
 st.markdown("<p style='text-align: center;'>This page delves into the 'brain' of our price prediction model. We use SHAP to understand not just *what* the model predicts, but *why*.</p>", unsafe_allow_html=True)
 st.divider()
 
-
 # Load Model and Data  
 model = load_model()
-df_model = load_features_sample() 
+
+with st.spinner("Loading sample data for SHAP analysis..."):
+    df_model = load_features_sample(sample_size=300)  
 
 # Model Performance
 with st.container(border=True):
@@ -53,10 +54,14 @@ def get_shap_explainer(_model):
 
 @st.cache_data
 def calculate_shap_values(_explainer, _X_sample):
+    """Calculate SHAP values with progress indicator"""
     return _explainer.shap_values(_X_sample)
 
-explainer = get_shap_explainer(model)
-shap_values_sample = calculate_shap_values(explainer, X_sample)
+with st.spinner("Calculating SHAP values... This may take a moment."):
+    explainer = get_shap_explainer(model)
+    shap_values_sample = calculate_shap_values(explainer, X_sample)
+
+st.success(f"SHAP analysis complete for {len(X_sample)} samples!")
 
 # Global Feature Importance
 with st.container(border=True):
@@ -68,7 +73,7 @@ with st.container(border=True):
     with tab1:
         fig, ax = plt.subplots()
         set_plot_style()
-        shap.summary_plot(shap_values_sample, X_sample, plot_type="bar", show=False)
+        shap.summary_plot(shap_values_sample, X_sample, plot_type="bar", show=False, max_display=15)
         ax.set_xlabel("mean(|SHAP value|) (average impact on model output)", color="white") 
         plt.tick_params(axis='x', colors='white') 
         plt.tick_params(axis='y', colors='white') 
@@ -77,7 +82,7 @@ with st.container(border=True):
     with tab2:
         fig2, ax2 = plt.subplots()
         set_plot_style()
-        shap.summary_plot(shap_values_sample, X_sample, show=False)
+        shap.summary_plot(shap_values_sample, X_sample, show=False, max_display=15)
         ax2.set_xlabel("SHAP value (impact on model output)", color="white")
         plt.tick_params(axis='x', colors='white')
         plt.tick_params(axis='y', colors='white')
@@ -92,6 +97,8 @@ with st.container(border=True):
         - **Beeswarm Plot:** Shows the distribution of impacts for each feature. Each dot is a prediction.
             - **Position:** Right of zero means it pushed the price prediction higher; left means lower.
             - **Color:** Red dots are high feature values; blue dots are low feature values.
+        
+        *Note: Analysis based on a representative sample of 300 products for performance optimization.*
         """)
 
 st.divider()
