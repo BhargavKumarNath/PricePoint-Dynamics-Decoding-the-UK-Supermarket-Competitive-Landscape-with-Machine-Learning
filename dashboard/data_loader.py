@@ -20,7 +20,6 @@ def download_file_from_google_drive(id, destination):
         gdown.download(url, destination, quiet=False)
     st.success(f"Downloaded {os.path.basename(destination)} successfully.")
 
-
 @st.cache_data
 def load_canonical_data():
     """Downloads and loads the canonical products dataset with memory optimization."""
@@ -28,17 +27,16 @@ def load_canonical_data():
     file_id = FILES_TO_DOWNLOAD[file_path]
     download_file_from_google_drive(file_id, file_path)
     
-    # Load only necessary columns
+    # OPTIMIZATION 1: Load specific columns with pyarrow engine
     columns = ['supermarket', 'prices', 'canonical_name', 'own_brand', 'date']
-    df = pd.read_parquet(file_path, columns=columns)
+    df = pd.read_parquet(file_path, columns=columns, engine='pyarrow')
     
-    # Optimize memory usage
+    # Optimize types
     df['supermarket'] = df['supermarket'].astype('category')
     df['own_brand'] = df['own_brand'].astype('category')
     df['canonical_name'] = df['canonical_name'].astype('category')
     df['prices'] = pd.to_numeric(df['prices'], downcast='float')
     df['date'] = pd.to_datetime(df['date'])
-    
     return df
 
 @st.cache_data
@@ -48,49 +46,35 @@ def get_raw_features_df():
     file_id = FILES_TO_DOWNLOAD[file_path]
     download_file_from_google_drive(file_id, file_path)
     
-    # Load all columns but optimize types
-    df = pd.read_parquet(file_path)
-    
-    # Convert object columns to category
-    for col in df.select_dtypes(include=['object']).columns:
-        df[col] = df[col].astype('category')
-        
-    # Downcast floats
-    for col in df.select_dtypes(include=['float64']).columns:
-        df[col] = pd.to_numeric(df[col], downcast='float')
-        
+    # OPTIMIZATION 2: Use dtype_backend='pyarrow'
+    df = pd.read_parquet(
+        file_path, 
+        engine='pyarrow', 
+        dtype_backend='pyarrow'
+    )
     return df
 
 @st.cache_data
 def load_features_sample(sample_size=1000):
-    """
-    Loads a sample of the feature data, processes it for the model, 
-    and aligns columns to match the model's expected input.
-    """
+    """Loads a sample of the feature data and aligns columns."""
     df = get_raw_features_df()
     
-    # Sample BEFORE processing to save memory
     if len(df) > sample_size:
         df = df.sample(sample_size, random_state=42)
     
-    # Perform one-hot encoding on the small sample
     df_encoded = pd.get_dummies(df, columns=['supermarket', 'category'], drop_first=True)
     
-    # Load model to get expected features
     file_path = "price_predictor_lgbm.joblib"
     file_id = FILES_TO_DOWNLOAD[file_path]
     download_file_from_google_drive(file_id, file_path)
     model = joblib.load(file_path)
     model_features = model.feature_name_
     
-    # Add missing columns with 0
     missing_cols = set(model_features) - set(df_encoded.columns)
     for c in missing_cols:
         df_encoded[c] = 0
         
-    # Ensure order and drop extra columns
     df_encoded = df_encoded[model_features]
-    
     return df_encoded
 
 @st.cache_resource
