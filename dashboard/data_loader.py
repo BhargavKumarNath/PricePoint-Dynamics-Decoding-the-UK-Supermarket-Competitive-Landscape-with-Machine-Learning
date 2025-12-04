@@ -43,18 +43,37 @@ def load_canonical_data():
 
 @st.cache_data
 def get_raw_features_df():
-    """Downloads and reads the raw feature-engineered parquet file."""
+    """Downloads and reads the raw feature-engineered parquet file with memory optimization."""
     file_path = "feature_engineered_data.parquet"
     file_id = FILES_TO_DOWNLOAD[file_path]
     download_file_from_google_drive(file_id, file_path)
-    return pd.read_parquet(file_path)
+    
+    # Load all columns but optimize types
+    df = pd.read_parquet(file_path)
+    
+    # Convert object columns to category
+    for col in df.select_dtypes(include=['object']).columns:
+        df[col] = df[col].astype('category')
+        
+    # Downcast floats
+    for col in df.select_dtypes(include=['float64']).columns:
+        df[col] = pd.to_numeric(df[col], downcast='float')
+        
+    return df
 
 @st.cache_data
 def load_features_data():
     """Loads and preprocesses the feature-engineered dataset for the model."""
     df = get_raw_features_df() 
+    
+    # Perform one-hot encoding
+    # Note: This increases memory usage significantly. 
+    # We ensure input df is optimized first.
     df_model = pd.get_dummies(df, columns=['supermarket', 'category'], drop_first=True)
+    
+    # Drop rows with NaNs (which might have been introduced or already present)
     df_model = df_model.dropna()
+    
     return df_model
 
 @st.cache_resource

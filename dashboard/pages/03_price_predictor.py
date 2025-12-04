@@ -9,7 +9,7 @@ st.markdown("Select a product's features using the sidebar to get a real time pr
 
 # Load Model and Data
 model = load_model()
-df_model_processed = load_features_data()
+# df_model_processed = load_features_data() # Removed unused heavy load
 df = get_raw_features_df() 
 
 st.sidebar.header("Product Features")
