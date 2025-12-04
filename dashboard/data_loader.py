@@ -62,19 +62,36 @@ def get_raw_features_df():
     return df
 
 @st.cache_data
-def load_features_data():
-    """Loads and preprocesses the feature-engineered dataset for the model."""
-    df = get_raw_features_df() 
+def load_features_sample(sample_size=1000):
+    """
+    Loads a sample of the feature data, processes it for the model, 
+    and aligns columns to match the model's expected input.
+    """
+    df = get_raw_features_df()
     
-    # Perform one-hot encoding
-    # Note: This increases memory usage significantly. 
-    # We ensure input df is optimized first.
-    df_model = pd.get_dummies(df, columns=['supermarket', 'category'], drop_first=True)
+    # Sample BEFORE processing to save memory
+    if len(df) > sample_size:
+        df = df.sample(sample_size, random_state=42)
     
-    # Drop rows with NaNs (which might have been introduced or already present)
-    df_model = df_model.dropna()
+    # Perform one-hot encoding on the small sample
+    df_encoded = pd.get_dummies(df, columns=['supermarket', 'category'], drop_first=True)
     
-    return df_model
+    # Load model to get expected features
+    file_path = "price_predictor_lgbm.joblib"
+    file_id = FILES_TO_DOWNLOAD[file_path]
+    download_file_from_google_drive(file_id, file_path)
+    model = joblib.load(file_path)
+    model_features = model.feature_name_
+    
+    # Add missing columns with 0
+    missing_cols = set(model_features) - set(df_encoded.columns)
+    for c in missing_cols:
+        df_encoded[c] = 0
+        
+    # Ensure order and drop extra columns
+    df_encoded = df_encoded[model_features]
+    
+    return df_encoded
 
 @st.cache_resource
 def load_model():

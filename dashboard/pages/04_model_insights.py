@@ -4,7 +4,7 @@ import joblib
 import shap
 import matplotlib.pyplot as plt
 import streamlit.components.v1 as components
-from data_loader import load_model, load_features_data 
+from data_loader import load_model, load_features_sample 
 
 # Page Configuration
 st.set_page_config(page_title="Model Insights", layout="wide")
@@ -31,7 +31,7 @@ st.divider()
 
 # Load Model and Data  
 model = load_model()
-df_model = load_features_data() 
+df_model = load_features_sample() 
 
 # Model Performance
 with st.container(border=True):
@@ -45,7 +45,7 @@ with st.container(border=True):
 st.divider()
 
 # Prepare data for SHAP
-X_sample = df_model[model.feature_name_].sample(1000, random_state=42)
+X_sample = df_model
 
 @st.cache_resource
 def get_shap_explainer(_model):
