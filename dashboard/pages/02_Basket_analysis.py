@@ -57,7 +57,7 @@ summary_df = pd.DataFrame({
 palette = sns.color_palette("viridis", n_colors=len(summary_df))
 
 fig, ax = plt.subplots(figsize=(12, 6))
-sns.barplot(data=summary_df, x='supermarket', y='Total Cost (£)', palette=palette, ax=ax)
+sns.barplot(data=summary_df, x='supermarket', y='Total Cost (£)', hue='supermarket', palette=palette, ax=ax, legend=False)
 ax.set_title(f"Cost of '{selected_basket_name}' Basket", fontsize=18, weight='bold')
 ax.set_xlabel("Supermarket", fontsize=12)
 ax.set_ylabel("Total Basket Price (£)", fontsize=12)
@@ -67,7 +67,7 @@ st.pyplot(fig)
 
 st.subheader("Detailed Basket Breakdown")
 st.markdown("The table below shows the total cost, the number of items found from the basket, and the percentage of the basket each supermarket was able to fulfill.")
-st.dataframe(summary_df, use_container_width=True)
+st.dataframe(summary_df, width='stretch')
 
 
 with st.expander("View Products in this Basket and Their Prices"):

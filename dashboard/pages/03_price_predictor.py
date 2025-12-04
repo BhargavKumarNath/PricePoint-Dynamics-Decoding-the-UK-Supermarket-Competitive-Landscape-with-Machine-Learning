@@ -43,8 +43,8 @@ def prepare_input_data(user_input, original_columns):
     input_df["supermarket"] = supermarket
     input_df = pd.get_dummies(input_df, columns=["supermarket"])
 
-    model_columns = pd.DataFrame(columns=original_columns)
-    final_df = pd.concat([model_columns, input_df]).fillna(0)
+    # We use reindex to ensure all model columns are present, filling missing ones with 0.
+    final_df = input_df.reindex(columns=original_columns, fill_value=0)
     return final_df[original_columns]
 
 # PREDICTION

@@ -75,7 +75,10 @@ def process_dynamics_data():
                         continue
 
                     max_lag = 7
-                    corrs = [series1.corr(series2.shift(lag)) for lag in range(-max_lag, max_lag + 1)]
+                    import warnings
+                    with warnings.catch_warnings():
+                        warnings.simplefilter("ignore", RuntimeWarning)
+                        corrs = [series1.corr(series2.shift(lag)) for lag in range(-max_lag, max_lag + 1)]
                     if np.nanmax(np.abs(corrs)) > 0.15:
                         lag_val = np.arange(-max_lag, max_lag + 1)[np.nanargmax(np.abs(corrs))]
                         lags.append(lag_val)
@@ -118,7 +121,7 @@ with tab1:
         ax.set_xlabel("Date")
         ax.grid(True, which='both', linestyle='--', linewidth=0.5)
         ax.legend()
-        st.pyplot(fig, use_container_width=True)
+        st.pyplot(fig, width='stretch')
 
     st.info("**Insight:** After a volatile period in mid-January, the market settled into a stable equilibrium. The level of price difference between retailers is not escalating into a price war, nor is it diminishing.", icon="💡")
 
@@ -162,6 +165,6 @@ with tab2:
                 help=f"This retailer reacts the quickest, following price changes from {fastest_follower_row['leader']}."
             )
         
-        st.dataframe(leader_df.sort_values('median_lag_days', ascending=False, key=abs), use_container_width=True)
+        st.dataframe(leader_df.sort_values('median_lag_days', ascending=False, key=abs), width='stretch')
 
     st.info("**Insight:** The graph and table clearly show that Aldi is a primary price-setter. Arrows consistently point from Aldi to the 'Big Four,' with a lag of several days. Among the 'Big Four,' the relationships are much faster and more reciprocal, indicating a tight, reactive competitive cluster.", icon="💡")

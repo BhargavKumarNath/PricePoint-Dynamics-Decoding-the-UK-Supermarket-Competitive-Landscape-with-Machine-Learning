@@ -54,7 +54,7 @@ with col1:
         ax.set_title('Product Price Distribution', fontsize=12)
         ax.set_ylabel('Price (£)')
         ax.set_xlabel('') 
-        st.pyplot(fig, use_container_width=True)
+        st.pyplot(fig, width='stretch')
         st.markdown("""
         **Insight:** This reveals the market's two-tiered structure. **Aldi** operates in a significantly lower price bracket, confirming its hard-discounter model, while the "Big Four" compete in a similar, higher price range.
         """)
@@ -73,8 +73,8 @@ with col2:
         ax.set_title('Number of Unique Products by Retailer', fontsize=12)
         ax.set_ylabel('Count of Unique Products')
         ax.set_xlabel('')
-        ax.set_xticklabels(ax.get_xticklabels(), rotation=45, ha='right')
-        st.pyplot(fig, use_container_width=True)
+        ax.tick_params(axis='x', rotation=45)
+        st.pyplot(fig, width='stretch')
         st.markdown("""
         **Insight:** Sainsbury's, ASDA, and Tesco offer a vast range, positioning themselves as "one-stop-shops". **Aldi's** curated selection highlights a strategy focused on operational efficiency over choice.
         """)
@@ -90,7 +90,7 @@ with col3:
         # 3a. Own Brand Percentage
         st.markdown("##### Percentage of Own Brand")
         own_brand_percentage = df.groupby('supermarket')['own_brand'].mean() * 100
-        st.dataframe(own_brand_percentage.sort_values(ascending=False).map("{:.2f}%".format), use_container_width=True)
+        st.dataframe(own_brand_percentage.sort_values(ascending=False).map("{:.2f}%".format), width='stretch')
         st.markdown("""
         **Insight:** Contrary to common perception, it's the larger supermarkets like **ASDA** that have the highest proportion of own-brand items, showing their reliance on these lines to compete.
         """)
@@ -112,4 +112,4 @@ with col4:
         plt.setp(legend.get_texts(), color='white') 
         plt.setp(legend.get_title(), color='white') 
         
-        st.pyplot(fig, use_container_width=True)
+        st.pyplot(fig, width='stretch')

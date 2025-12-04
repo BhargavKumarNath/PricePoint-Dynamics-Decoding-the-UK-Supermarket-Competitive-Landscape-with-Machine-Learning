@@ -28,7 +28,7 @@ with col3:
 st.markdown("---")
 
 # Instruction
-st.header(" navigating the Dashboard")
+st.header("Navigating the Dashboard")
 st.info(""" 
 Use the sidebar on the left ot navigate through the different phases of the analysis:
         

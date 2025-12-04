@@ -72,7 +72,7 @@ with st.container(border=True):
         ax.set_xlabel("mean(|SHAP value|) (average impact on model output)", color="white") 
         plt.tick_params(axis='x', colors='white') 
         plt.tick_params(axis='y', colors='white') 
-        st.pyplot(fig, use_container_width=True)
+        st.pyplot(fig, width='stretch')
 
     with tab2:
         fig2, ax2 = plt.subplots()
@@ -84,7 +84,7 @@ with st.container(border=True):
         cbar = plt.gcf().axes[-1]
         cbar.tick_params(colors='white')
         cbar.set_ylabel(cbar.get_ylabel(), color='white')
-        st.pyplot(fig2, use_container_width=True)
+        st.pyplot(fig2, width='stretch')
 
     with st.expander("How to Read These Plots"):
         st.markdown("""
