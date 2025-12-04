@@ -66,7 +66,10 @@ def load_features_sample(sample_size=500):
     file_id = FILES_TO_DOWNLOAD[file_path]
     download_file_from_google_drive(file_id, file_path)
     
-    # Read the file to get row count first
+    # Load model first to get expected features
+    model = load_model()
+    model_features = model.feature_name_
+    
     import pyarrow.parquet as pq
     parquet_file = pq.ParquetFile(file_path)
     total_rows = parquet_file.metadata.num_rows
@@ -87,21 +90,39 @@ def load_features_sample(sample_size=500):
         if df[col].dtype.name.startswith('string'):
             df[col] = df[col].astype(str)
     
-    df_encoded = pd.get_dummies(df, columns=['supermarket', 'category'], drop_first=True)
+    # Check if data is already encoded or needs encoding
+    if 'supermarket' in df.columns and 'category' in df.columns:
+        # Data needs encoding
+        df_encoded = pd.get_dummies(df, columns=['supermarket', 'category'], drop_first=True)
+    else:
+        # Data is already encoded, use as-is
+        df_encoded = df.copy()
     
-    model = load_model()
-    model_features = model.feature_name_
+    # Drop any non-numeric columns that might cause issues
+    df_encoded = df_encoded.select_dtypes(include=['number'])
     
     # Add missing columns with 0
     missing_cols = set(model_features) - set(df_encoded.columns)
     for c in missing_cols:
         df_encoded[c] = 0
     
-    # Remove extra columns and reorder
+    # Keep only the columns the model needs and reorder
+    available_features = [f for f in model_features if f in df_encoded.columns]
+    df_encoded = df_encoded[available_features]
+    
+    # Add any still-missing features as 0
+    for c in model_features:
+        if c not in df_encoded.columns:
+            df_encoded[c] = 0
+    
+    # Final reorder to match model exactly
     df_encoded = df_encoded[model_features]
     
     for col in df_encoded.select_dtypes(include=['float64']).columns:
         df_encoded[col] = pd.to_numeric(df_encoded[col], downcast='float')
+    
+    # Drop any rows with NaN values
+    df_encoded = df_encoded.dropna()
     
     return df_encoded
 
