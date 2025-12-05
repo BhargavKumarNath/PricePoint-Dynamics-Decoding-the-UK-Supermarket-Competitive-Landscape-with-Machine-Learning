@@ -1,71 +1,133 @@
-# PricePoint Dynamics: A Deep Dive into UK Supermarket Competition with Machine Learning
+# PricePoint Dynamics: UK Supermarket Competitive Intelligence
+Live Dashboard: https://pricepointdynamics.streamlit.app/
 
-## Overview
+# 📖 Executive Summary
+PricePoint Dynamics is an end-to-end data science initiative designed to decode the pricing strategies of the "Big 5" UK supermarkets: **Tesco, Sainsbury's, ASDA, Morrisons, and Aldi**
 
-This project is an end-to-end data science analysis of the competitive landscape of the UK supermarket industry. Using daily price data scraped from **Aldi, ASDA, Morrisons, Sainsbury's, and Tesco**, this repository explores the full data science lifecycle: from data engineering and advanced NLP for product matching to predictive modeling and strategic insight generation.
+Moving beyond basic web scraping, this project employs advanced Natural Language Processing (NLP) to solve the "product matching problem", creating a unified view of the market. It utilizes Gradient Boosting (LightGBM) to forecast daily prices with hgih precision $(MAE: £0.14)$ and leverages Explainable AI (SHAP) to deconstruct the drivers of price volatility.
 
-The primary goal is to move beyond simple price comparisons to understand the deep dynamics of the market: Who leads price changes? Who follows? How do pricing strategies differ across categories? And can we predict future price movements with high accuracy?
+This repository demonstrates a full-lifecycle ML workflow: data engineering at scale (~9.5M records), semantic similarity search, predictive modeling, anomaly detection, and the deployment of an interactive stakeholder dashboard.
 
-## Key Features & Highlights
 
-*   **Advanced Product Matching:** Implemented a state-of-the-art canonical product mapping pipeline using **Sentence-BERT embeddings** and **FAISS** for efficient similarity search, enabling true like-for-like product comparisons.
-*   **Comprehensive EDA:** Uncovered market positioning, portfolio strategies, and category focus for each of the five major UK supermarkets.
-*   **Predictive Modeling:** Built a LightGBM model that predicts daily product prices with a **Mean Absolute Error of just £0.14**.
-*   **Explainable AI (XAI):** Used **SHAP** to interpret the "black box" model, revealing the key drivers behind price predictions and quantifying the real-world impact of features like brand and retailer choice.
-*   **Dynamic Market Analysis:** Modeled market dynamics through **time-series decomposition, cross-correlation analysis** to identify price leaders, and **price dispersion analysis** to measure market competitiveness over time.
-*   **Unsupervised Learning:** Deployed an **Isolation Forest** model to automatically detect anomalous pricing events, useful for identifying promotions or data errors.
-* **Interactive Dashboard:** A user friendly Streamlit application to visualise the findings and interact with the predictive models, making complex data accessible to all stakeholders.
+# 🏗️ Architecture & Workflow
+The system follows a modular architecture designed for scalability and reproducibility.
 
----
+![System Dessign](system_design_uk_store.png)
 
-## Key Findings & Insights
+# 🔬 Technical Methodology
+## 1. Data Engineering & validation
+**Source:** [Kaggle UK Supermarket Data](https://www.kaggle.com/datasets/declanmcalinden/time-series-uk-supermarket-data)  
 
-The analysis revealed a stable, two-tiered market with highly predictable dynamics.
+- **Scope:** Processed daily pricing data from five major UK retailers.
+- **Volume:** Handled over 9.5 million transaction records.
+- **Validation:** Applied rigorous quality checks to detect and correct scraping artifacts.
+- **Unit Standardization:** Corrected unit-price discrepancies (e.g., `£/100g` vs `£/kg`), which previously caused outliers up to `£99k/kg`. 
+- **Sanitization:** Normalized text fields and standardized `own_brand` flags for downstream NLP and analytical workflows.  
 
-1.  **Distinct Market Positioning:** The analysis reveals clear, data-driven evidence of different strategic positions among the UK's top supermarkets:
-    * **Aldi** stands out as the go-to budget option, consistently offering the lowest prices on a carefully selected range of everyday essentials.
-    * **Tesco & Sainsbury** are in close competition for the mainstream shopper. Tesco tends to have slightly better deals on branded products, while Sainsbury’s offers a broader selection—especially in niche and specialty categories.
-    * **Morrisons** has positioned itself as a value-focused alternative within the "Big Four." Surprisingly, it even beats Aldi in certain categories like ‘Healthy Choice’ and ‘Free From’ baskets.
+## 2. The "Apples-to-Apples" Problem (NLP)
+A major challange in retail analytics is comparing "Tesco Bananas 5pk" with "Aldi Natures Pick Bananas 5pk". Exact string matching fails here.
+- **Solution:** Implemented a semantic search pipeline using **Sentence-BERT** (`intfloat/e5-large`)
+- **Vector Database:** Utilized **FAISS** (Facebook AI Similarity Search) to map retailer-specific SKUs to a "Canonical Product" representation.
+- **Result:** Enabled true like-for-like comparison across retailers, forming the backbone of the market basket analysis.
 
-2. **Price Leadership Dynamics:** The data unveils a clear "leader-follower" dynamic in the market:
-    * **Tesco** frequently acts as the price leader. Cross-correlation analysis shows that its price changes are often the first to occur.
-    * Other supermarkets, notably **Sainsbury** tend to follow Tesco's lead, adjusting their prices around two weeks later.
+## 3. Feature Engineering Strategy
+To predict future prices, the model requires context beyond the current price. We engineered a robust feature set (32+ dimensions):
+- **Temporal Dynamics:** 7, 14, and 30 day rolling means, standard deviations, mins and maxes.
+- **Momentum Signals:** Price lags (t-1, t-7) and daily velocity (1st order differencing).
+- **Competitive Context:** Crucial relative metrics calculated daily, such as `price_vs_market_avg` and `is_cheapest_in_market`.
+- **Cyclical Encodings:** Day of week, day of month, and week of year embeddings.
 
-3. **Highly Accurate Price Prediction:** The developed LightGBM model can predict product prices with a Mean Absolute Error (MAE) of just £0.14, making it a reliable tool for forecasting future pricing trends.
+## 4. Predictive Modeling
+- **Algorithm LightGBM Regressor** (Gradient Boosting Decision Tree). Chosen for its speed, handling of categorical variables, and performance on tabular time series data.
+- **Objective:** L1 Loss (Mean Absolute Error)  to reduce sensitivity to extreme outliers compared to RMSE.
+- **Training Strategy:** Time-series cross-validation (training on past, testing on future) to prevent data leakage.
+- **Performance Metrics:**
+    * **MAE:** $£0.1390$ (Average prediction error is just $14$ pence).
+    * **RMSE:** $£0.3728$.
+    * **R² Context:** The standard deviation of prices is $£7.01$. An error of $£0.14$ represents a $~2\%$ relative error, indicating extremely high predictive power.
 
-4. **Key Drivers of Price Changes:** The model's feature importance, revealed through SHAP analysis, shows that:
-    * A product's own price history (such as its 7-day minimum price) is the single most powerful predictor of its future price.
-    * The supermarket brand itself is a major systematic driver of price level, confirming the distinct pricing strategies of each retailer.
-    * Market-relative metrics, like a product's price compared to the market average, are also highly influential.
+## 5. Unsupervised Anomaly Detection
+Deployed an Isolated Forest model to scan for pricing irregularities.
+- **Findings:** Identified $~95,000$ anomalous pricing events ($1\%$ contamination rate).
+- **Insight:** Detected "oscillation patterns" where products flipped prices daily (e.g., £23 $\leftrightarrow$ £12). This suggests algorithmic A/B testing by retailers or scraping inconsistencies.
 
-5. **Stable Competitive Equilibrium:** Despite daily price fluctuations, the overall price dispersion across the market has remained remarkably stable since February 2024. This indicates that retailers are maintaining their strategic price gaps rather than engaging in a destructive price war.
+# 📊 Key Findings & Market Insights
+## 1. Market Positioning Matrix
+Data analysis confirms a two tier market structure:
+- **The Budget Anchor: Aldi** consistently defines the price floor. The model's SHAP values show that the `supermarket=Aldi` feature systematically pushes price predictions downward.
+- **The Mainstream Battleground: Tesco** & **Sainsbury's** operate in near lock-step.
+- **The Value challanger: Morrisons** has carved a niche, beating Aldi on specific categories like "Healthy Choice" and "Free From" baskets.
 
-6.**Methodological Innovation for Fair Comparison:** A significant challenge in this analysis was ensuring like-for-like product comparisons. This was overcome by implementing an advanced product matching pipeline using Sentence-BERT embeddings and FAISS, which allowed for the creation of standardized shopping baskets for accurate cross-retailer analysis.
+## 2. Leader-Follower Dynamics
+Cross-correlation analysis reveals a temporal dependancy in pricing updates:
+- **Tesco** acts as the primary price leader, initiating changes.
+- **Sainsbury's** typically reacts with a lag of approximately 14 days, validating the "follower" hypothesis.
 
----
+## 3. Price Inertia and Drivers
+SHAP (SHapley Additive exPlanations) analysis reveals the model's decision hierarchy:
+- **Price History is King:** The 7-day minimum price (`price_rol_min_7d`) is the single strongest predictor. Prices exhibit high inertia.
+- **Market Relativity:** A product's deviation from the daily market average is a top-3 predictor, proving that retailers price dynamically based on competitors.
+- **Brand Premium:** The `own_brand` flag significantly impacts price sensitivity.
 
-## Tech Stack & Libraries
+# 💻 Dashboard & Usage
+The Streamlit dashboard allows non-technical stakeholders to interact with the models.
 
-*   **Data Manipulation & Analysis:** Pandas, NumPy
-*   **Machine Learning:** Scikit-learn, LightGBM
-*   **Natural Language Processing:** Sentence-Transformers (`intfloat/e5-large`)
-*   **Vector Search:** FAISS (Facebook AI Similarity Search)
-*   **Statistical Analysis:** Statsmodels
-*   **Model Interpretability:** SHAP
-*   **Data Visualization:** Matplotlib, Seaborn, Plotly
-*   **Dashboard:** Streamlit
----
+Navigation Guide
+1. **Market Overview:** High-level KPIs, total basket costs, and inflation tracking across the 5 retailers.
 
-## Interactive Dashboard
-The project culminates in a powerful Streamlit dashboard designed for users to explore the complex world of supermarket pricing.
-* **Market Overview**: Presents a consolidated view of product coverage and average pricing across major UK supermarkets, providing a high-level understanding of market composition.
+2. **Basket Analysis:** Select a specific "Lifestyle Basket" (e.g., Student, Family, Luxury) to see which retailer wins for that specific demographic.
 
-* **Basket Analysis:** Facilitates direct, like-for-like price comparisons using standardized shopping baskets (e.g., “Essentials,” “Healthy Choice”), allowing for fair cross-retailer evaluation.
+3. **Price Predictor:** Select a product and retailer to generate a real-time price forecast for the next 7 days using the trained LightGBM model.
 
-* **Price Predictor:** Offers an interactive forecasting tool powered by a trained machine learning model, enabling users to estimate future prices for any product across different retailers.
+4. **Model Insights:** Interactive SHAP plots explaining why the model predicted a specific price.
 
-* **Model Insights:** Delivers interpretability through SHAP-based visualizations, highlighting the most influential factors behind model predictions and ensuring transparency in decision logic.
+5. **Market Dynamics:** Visualizations of price dispersion and volatility over time.
 
-* **Market Dynamics:** Visualizes broader trends such as price leadership shifts and market-wide price dispersion over time, helping users understand underlying competitive behaviors.
----
 
+# 📂 Project Structure
+
+```bash
+├── .devcontainer/       # Dev container configuration
+├── .streamlit/          # Streamlit theme & config
+├── dashboard/           # Dashboard Application Code
+│   ├── app.py           # Main entry point
+│   ├── data_loader.py   # Cached data loading utilities
+│   └── pages/           # Individual dashboard pages
+├── notebooks/           # Jupyter Notebooks for Experimentation
+│   ├── 01_data_ingestion.ipynb       # Cleaning & Validation
+│   ├── 03_product_matching.ipynb     # S-BERT & FAISS pipeline
+│   ├── 05_feature_engineering.ipynb  # Rolling stats & Lag generation
+│   ├── 06_model_training.ipynb       # LightGBM & Evaluation
+│   └── 07_anomaly_detection.ipynb    # Isolation Forest
+├── src/                 # Shared python modules
+├── requirements.txt     # Python dependencies
+└── README.md            # Project documentation
+```
+
+# ⚙️ Installation
+To reproduce this analysis or run the dashboard locally:
+
+1. Clone the repository:
+```bash
+git clone https://github.com/bhargavkumarnath/pricepoint-dynamics.git
+cd pricepoint-dynamics
+```
+
+2. Set up environment
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows use `venv\Scripts\activate`
+pip install -r dashboard/requirements.txt
+```
+3. Run the Dashboard:
+
+```bash
+streamlit run dashboard/app.py
+```
+
+# 📜 License
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+Author: Bhargav Kumar Nath
+
+Data Science | ML Engineering | Strategy
