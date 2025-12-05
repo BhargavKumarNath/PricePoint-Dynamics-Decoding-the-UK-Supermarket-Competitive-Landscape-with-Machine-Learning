@@ -75,7 +75,7 @@ with st.container(border=True):
         ax.set_xlabel("mean(|SHAP value|) (average impact on model output)", color="white") 
         plt.tick_params(axis='x', colors='white') 
         plt.tick_params(axis='y', colors='white') 
-        st.pyplot(fig, use_container_width=True)
+        st.pyplot(fig, width='stretch')
 
     with tab2:
         fig2, ax2 = plt.subplots(figsize=(10, 8))
@@ -87,7 +87,7 @@ with st.container(border=True):
         cbar = plt.gcf().axes[-1]
         cbar.tick_params(colors='white')
         cbar.set_ylabel(cbar.get_ylabel(), color='white')
-        st.pyplot(fig2, use_container_width=True)
+        st.pyplot(fig2, width='stretch')
 
     with st.expander("How to Read These Plots"):
         st.markdown(f"""
@@ -157,7 +157,7 @@ with st.container(border=True):
             st.dataframe(feature_contributions.style.format({
                 'Value': '{:.3f}',
                 'SHAP Impact': '{:+.3f}'
-            }), use_container_width=True)
+            }), width='stretch')
 
         with st.expander("How to Read This Force Plot"):
             st.markdown(f"""
@@ -170,7 +170,6 @@ with st.container(border=True):
             The length of each arrow represents the magnitude of that feature's impact on the prediction.
             """, unsafe_allow_html=True)
 
-# Optional: Feature Importance Table
 with st.expander("📊 View Detailed Feature Importance Table"):
     feature_importance = pd.DataFrame({
         'Feature': X_sample.columns,
@@ -181,6 +180,6 @@ with st.expander("📊 View Detailed Feature Importance Table"):
         feature_importance.style.format({'Mean |SHAP|': '{:.4f}'}).background_gradient(
             subset=['Mean |SHAP|'], cmap='YlOrRd'
         ),
-        use_container_width=True,
+        width='stretch',
         height=400
     )
