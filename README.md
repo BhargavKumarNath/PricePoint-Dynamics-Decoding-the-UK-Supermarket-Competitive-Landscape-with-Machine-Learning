@@ -12,7 +12,7 @@ This repository demonstrates a full-lifecycle ML workflow: data engineering at s
 # 🏗️ Architecture & Workflow
 The system follows a modular architecture designed for scalability and reproducibility.
 
-![System Dessign](system_design_uk_store.png)
+![System Dessign](system_design.svg)
 
 This section explains the three zone architecture shown in the Mermaid, detailing how data flows from raw CSVs to an interactive dashboard.
 
