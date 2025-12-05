@@ -3,11 +3,15 @@ import pandas as pd
 import joblib
 import gdown  
 import os
+import numpy as np
 
 FILES_TO_DOWNLOAD = {
     "canonical_products_e5.parquet": "1-xIpUJ3NbIQRqUGjBtJDp9wRMGXkKKh_",
     "feature_engineered_data.parquet": "13LNbB761rBccmqQsHpQPR8a9xa4-EDUc",
-    "price_predictor_lgbm.joblib": "1_btm3rfSbA-RJQZZTBxDPKchP0gkxIWN"
+    "price_predictor_lgbm.joblib": "1_btm3rfSbA-RJQZZTBxDPKchP0gkxIWN",
+    "shap_sample_data.parquet": "1V-gMTu5ygSO0LDNNgFiLaHEyaUdA7ABu",
+    "shap_values.npy": "1HOfYnCzvaMgqjM57V2btxyOO71ElHVWi",
+    "shap_base_value.txt": "1dFwJ_sV4rXJH3Bb_9emvnChSlpi1g6L4"
 }
 
 def download_file_from_google_drive(id, destination):
@@ -46,7 +50,6 @@ def get_raw_features_df():
     file_id = FILES_TO_DOWNLOAD[file_path]
     download_file_from_google_drive(file_id, file_path)
     
-    # Use dtype_backend='pyarrow' for memory efficiency
     df = pd.read_parquet(
         file_path, 
         engine='pyarrow', 
@@ -55,76 +58,48 @@ def get_raw_features_df():
     return df
 
 @st.cache_data
-def load_features_sample(sample_size=500):
+def load_shap_sample_data():
     """
-    Loads a SMALL sample of feature data, processes it efficiently,
-    and aligns columns with the model's expected features.
+    Loads the PRE-COMPUTED sample data used for SHAP analysis.
+    This is much faster and more memory-efficient than computing on-the-fly.
+    """
+    file_path = "shap_sample_data.parquet"
+    file_id = FILES_TO_DOWNLOAD.get(file_path)
     
-    CRITICAL: This must be FAST and memory-efficient for Streamlit Cloud.
-    """
-    file_path = "feature_engineered_data.parquet"
-    file_id = FILES_TO_DOWNLOAD[file_path]
+    if not file_id or file_id == "YOUR_GOOGLE_DRIVE_ID_HERE":
+        st.error("⚠️ Pre-computed SHAP data not configured. Please run precompute_shap_values.py locally and upload the files.")
+        return None
+    
     download_file_from_google_drive(file_id, file_path)
+    df = pd.read_parquet(file_path, engine='pyarrow')
+    return df
+
+@st.cache_data
+def load_shap_values():
+    """
+    Loads the PRE-COMPUTED SHAP values.
+    Returns: (shap_values, base_value) tuple
+    """
+    shap_file = "shap_values.npy"
+    base_file = "shap_base_value.txt"
     
-    # Load model first to get expected features
-    model = load_model()
-    model_features = model.feature_name_
+    shap_id = FILES_TO_DOWNLOAD.get(shap_file)
+    base_id = FILES_TO_DOWNLOAD.get(base_file)
     
-    import pyarrow.parquet as pq
-    parquet_file = pq.ParquetFile(file_path)
-    total_rows = parquet_file.metadata.num_rows
+    if not shap_id or shap_id == "YOUR_GOOGLE_DRIVE_ID_HERE":
+        st.error("⚠️ Pre-computed SHAP values not configured. Please run precompute_shap_values.py locally and upload the files.")
+        return None, None
     
-    # Calculate which rows to read (evenly distributed sample)
-    if total_rows > sample_size:
-        step = total_rows // sample_size
-        row_indices = list(range(0, total_rows, step))[:sample_size]
-    else:
-        row_indices = list(range(total_rows))
+    # Download SHAP values
+    download_file_from_google_drive(shap_id, shap_file)
+    shap_values = np.load(shap_file)
     
-    # Read only sampled rows
-    table = parquet_file.read(row_indices)
-    df = table.to_pandas()
+    # Download base value
+    download_file_from_google_drive(base_id, base_file)
+    with open(base_file, 'r') as f:
+        base_value = float(f.read().strip())
     
-    # Convert pyarrow types to standard pandas types to avoid issues
-    for col in df.select_dtypes(include=['object']).columns:
-        if df[col].dtype.name.startswith('string'):
-            df[col] = df[col].astype(str)
-    
-    # Check if data is already encoded or needs encoding
-    if 'supermarket' in df.columns and 'category' in df.columns:
-        # Data needs encoding
-        df_encoded = pd.get_dummies(df, columns=['supermarket', 'category'], drop_first=True)
-    else:
-        # Data is already encoded, use as-is
-        df_encoded = df.copy()
-    
-    # Drop any non-numeric columns that might cause issues
-    df_encoded = df_encoded.select_dtypes(include=['number'])
-    
-    # Add missing columns with 0
-    missing_cols = set(model_features) - set(df_encoded.columns)
-    for c in missing_cols:
-        df_encoded[c] = 0
-    
-    # Keep only the columns the model needs and reorder
-    available_features = [f for f in model_features if f in df_encoded.columns]
-    df_encoded = df_encoded[available_features]
-    
-    # Add any still-missing features as 0
-    for c in model_features:
-        if c not in df_encoded.columns:
-            df_encoded[c] = 0
-    
-    # Final reorder to match model exactly
-    df_encoded = df_encoded[model_features]
-    
-    for col in df_encoded.select_dtypes(include=['float64']).columns:
-        df_encoded[col] = pd.to_numeric(df_encoded[col], downcast='float')
-    
-    # Drop any rows with NaN values
-    df_encoded = df_encoded.dropna()
-    
-    return df_encoded
+    return shap_values, base_value
 
 @st.cache_resource
 def load_model():

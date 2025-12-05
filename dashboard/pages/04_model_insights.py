@@ -1,10 +1,9 @@
 import streamlit as st
 import pandas as pd
-import joblib
 import shap
 import matplotlib.pyplot as plt
 import streamlit.components.v1 as components
-from data_loader import load_model, load_features_sample 
+from data_loader import load_model, load_shap_sample_data, load_shap_values
 
 # Page Configuration
 st.set_page_config(page_title="Model Insights", layout="wide")
@@ -28,11 +27,28 @@ st.markdown("<h1 style='text-align: center; color: white;'>🧠 Model Insights &
 st.markdown("<p style='text-align: center;'>This page delves into the 'brain' of our price prediction model. We use SHAP to understand not just *what* the model predicts, but *why*.</p>", unsafe_allow_html=True)
 st.divider()
 
-# Load Model and Data  
+# Load Model
 model = load_model()
 
-with st.spinner("Loading sample data for SHAP analysis..."):
-    df_model = load_features_sample(sample_size=300)  
+# Load PRE-COMPUTED SHAP data
+with st.spinner("Loading pre-computed SHAP analysis..."):
+    X_sample = load_shap_sample_data()
+    shap_values_sample, base_value = load_shap_values()
+
+# Check if SHAP data loaded successfully
+if X_sample is None or shap_values_sample is None:
+    st.error("""
+    ### Pre-computed SHAP data not available
+    
+    To enable SHAP analysis:
+    1. Run `precompute_shap_values.py` on your local machine
+    2. Upload the generated files to Google Drive
+    3. Update the file IDs in `data_loader.py`
+    4. Redeploy the app
+    """)
+    st.stop()
+
+st.success(f"✓ SHAP analysis loaded for {len(X_sample):,} samples!")
 
 # Model Performance
 with st.container(border=True):
@@ -45,24 +61,6 @@ with st.container(border=True):
 
 st.divider()
 
-# Prepare data for SHAP
-X_sample = df_model
-
-@st.cache_resource
-def get_shap_explainer(_model):
-    return shap.TreeExplainer(_model)
-
-@st.cache_data
-def calculate_shap_values(_explainer, _X_sample):
-    """Calculate SHAP values with progress indicator"""
-    return _explainer.shap_values(_X_sample)
-
-with st.spinner("Calculating SHAP values... This may take a moment."):
-    explainer = get_shap_explainer(model)
-    shap_values_sample = calculate_shap_values(explainer, X_sample)
-
-st.success(f"SHAP analysis complete for {len(X_sample)} samples!")
-
 # Global Feature Importance
 with st.container(border=True):
     st.subheader("Global Feature Importance: What Drives Prices Overall?")
@@ -71,16 +69,16 @@ with st.container(border=True):
     tab1, tab2 = st.tabs(["Bar Chart (Average Impact)", "Beeswarm Plot (Impact Distribution)"])
 
     with tab1:
-        fig, ax = plt.subplots()
+        fig, ax = plt.subplots(figsize=(10, 8))
         set_plot_style()
         shap.summary_plot(shap_values_sample, X_sample, plot_type="bar", show=False, max_display=15)
         ax.set_xlabel("mean(|SHAP value|) (average impact on model output)", color="white") 
         plt.tick_params(axis='x', colors='white') 
         plt.tick_params(axis='y', colors='white') 
-        st.pyplot(fig, width='stretch')
+        st.pyplot(fig, use_container_width=True)
 
     with tab2:
-        fig2, ax2 = plt.subplots()
+        fig2, ax2 = plt.subplots(figsize=(10, 8))
         set_plot_style()
         shap.summary_plot(shap_values_sample, X_sample, show=False, max_display=15)
         ax2.set_xlabel("SHAP value (impact on model output)", color="white")
@@ -89,57 +87,100 @@ with st.container(border=True):
         cbar = plt.gcf().axes[-1]
         cbar.tick_params(colors='white')
         cbar.set_ylabel(cbar.get_ylabel(), color='white')
-        st.pyplot(fig2, width='stretch')
+        st.pyplot(fig2, use_container_width=True)
 
     with st.expander("How to Read These Plots"):
-        st.markdown("""
+        st.markdown(f"""
         - **Bar Chart:** Ranks features by their average impact on the model's predictions.
         - **Beeswarm Plot:** Shows the distribution of impacts for each feature. Each dot is a prediction.
             - **Position:** Right of zero means it pushed the price prediction higher; left means lower.
             - **Color:** Red dots are high feature values; blue dots are low feature values.
         
-        *Note: Analysis based on a representative sample of 300 products for performance optimization.*
+        *Analysis based on {len(X_sample):,} representative product samples.*
         """)
 
 st.divider()
+
+# Local Explanations
 with st.container(border=True):
     st.subheader("🔬 Local Prediction Explanations")
     st.markdown("Let's break down a **single prediction**. Select a product instance below to see how the model arrived at its forecast.")
 
-    random_index = st.selectbox(
-        "Select a random product instance to analyze:",
-        options=X_sample.index,
-        help="Each number represents a unique product on a specific day."
+    # Create a more user-friendly selector
+    sample_indices = X_sample.index.tolist()
+    selected_idx = st.selectbox(
+        "Select a product instance to analyze:",
+        options=range(len(sample_indices)),
+        format_func=lambda x: f"Product Sample #{x+1} (Index: {sample_indices[x]})",
+        help="Each sample represents a unique product on a specific day."
     )
+    
+    random_index = sample_indices[selected_idx]
 
-    if random_index:
+    if random_index is not None:
+        # Get the instance data
         instance = X_sample.loc[[random_index]]
-        shap_value_instance = explainer.shap_values(instance)
+        shap_value_instance = shap_values_sample[selected_idx:selected_idx+1]
         prediction = model.predict(instance)[0]
-        base_value = explainer.expected_value
 
-        st.markdown(f"##### Explaining Prediction for Instance #{random_index}")
-        st.metric(label="Model's Price Prediction", value=f"£{prediction:.2f}")
+        st.markdown(f"##### Explaining Prediction for Sample #{selected_idx+1}")
+        col1, col2, col3 = st.columns(3)
+        col1.metric(label="Model's Price Prediction", value=f"£{prediction:.2f}")
+        col2.metric(label="Base Value (Average)", value=f"£{base_value:.2f}")
+        col3.metric(label="Prediction Difference", value=f"£{prediction - base_value:+.2f}")
 
         st.markdown("##### Force Plot Breakdown")
+        st.markdown("This visualization shows how each feature pushed the prediction up (red) or down (blue) from the baseline.")
 
-        force_plot = shap.force_plot(
-            base_value,
-            shap_value_instance,
-            instance,
-            show=False,
-            matplotlib=False
-        )
+        try:
+            force_plot = shap.force_plot(
+                base_value,
+                shap_value_instance,
+                instance,
+                show=False,
+                matplotlib=False
+            )
 
-        shap_html = f"<head>{shap.getjs()}</head><body>{force_plot.html()}</body>"
-        
-        components.html(shap_html, height=200)
+            shap_html = f"<head>{shap.getjs()}</head><body>{force_plot.html()}</body>"
+            components.html(shap_html, height=200)
+        except Exception as e:
+            st.warning(f"Could not render interactive force plot: {e}")
+            st.markdown("Showing top influential features instead:")
+            
+            # Fallback: Show top features in a table
+            feature_contributions = pd.DataFrame({
+                'Feature': X_sample.columns,
+                'Value': instance.values[0],
+                'SHAP Impact': shap_value_instance[0]
+            }).sort_values('SHAP Impact', key=abs, ascending=False).head(10)
+            
+            st.dataframe(feature_contributions.style.format({
+                'Value': '{:.3f}',
+                'SHAP Impact': '{:+.3f}'
+            }), use_container_width=True)
 
         with st.expander("How to Read This Force Plot"):
             st.markdown(f"""
             This plot shows the forces pushing the prediction for this single instance.
-            - The **base value ({base_value:.2f})** is the average prediction over the dataset.
+            - The **base value (£{base_value:.2f})** is the average prediction over the dataset.
             - **<span style='color: #ff0d57;'>Red arrows</span>** show features that pushed the prediction **higher**.
             - **<span style='color: #008bfb;'>Blue arrows</span>** show features that pushed the prediction **lower**.
             - The final **bold** number is the model's output for this specific instance.
+            
+            The length of each arrow represents the magnitude of that feature's impact on the prediction.
             """, unsafe_allow_html=True)
+
+# Optional: Feature Importance Table
+with st.expander("📊 View Detailed Feature Importance Table"):
+    feature_importance = pd.DataFrame({
+        'Feature': X_sample.columns,
+        'Mean |SHAP|': abs(shap_values_sample).mean(axis=0)
+    }).sort_values('Mean |SHAP|', ascending=False)
+    
+    st.dataframe(
+        feature_importance.style.format({'Mean |SHAP|': '{:.4f}'}).background_gradient(
+            subset=['Mean |SHAP|'], cmap='YlOrRd'
+        ),
+        use_container_width=True,
+        height=400
+    )
