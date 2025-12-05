@@ -1,9 +1,8 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
 import matplotlib.pyplot as plt
 from streamlit_agraph import agraph, Node, Edge, Config
-from data_loader import load_canonical_data
+from data_loader import load_market_dispersion, load_price_leadership
 
 # Page Configuration 
 st.set_page_config(page_title="Market Dynamics", layout="wide")
@@ -20,7 +19,6 @@ st.markdown("""
     }
 </style>
 """, unsafe_allow_html=True)
-
 
 # Plotting Style Function 
 def set_plot_style():
@@ -43,58 +41,25 @@ st.markdown("<h1 style='text-align: center; color: white;'>🌐 Market Dynamics 
 st.markdown("<p style='text-align: center;'>This section explores the strategic interactions between retailers over time, answering the question: <b>Who leads, and who follows?</b></p>", unsafe_allow_html=True)
 st.divider()
 
-# Data Loading and Processing (Cached)
-@st.cache_data
-def process_dynamics_data():
-    """
-    Loads data using the central loader and performs all heavy calculations
-    for the market dynamics page.
-    """
-    df = load_canonical_data()
-    df['date'] = pd.to_datetime(df['date'])
+# Load pre-computed data
+with st.spinner("Loading market dynamics data..."):
+    market_dispersion = load_market_dispersion()
+    leader_df = load_price_leadership()
 
-    daily_stats = df.groupby(['canonical_name', 'date'])['prices'].agg(['mean', 'std']).reset_index()
-    daily_stats['dispersion'] = np.where(daily_stats['mean'] > 0, daily_stats['std'] / daily_stats['mean'], 0)
-    market_dispersion = daily_stats.groupby('date')['dispersion'].mean().sort_index()
-
-    price_pivot = df.pivot_table(index='date', columns=['supermarket', 'canonical_name'], values='prices').ffill()
-    supermarkets = df['supermarket'].unique()
-    leader_results = []
+# Check if data loaded successfully
+if market_dispersion is None or leader_df is None:
+    st.error("""
+    ### Pre-computed market dynamics data not available
     
-    sampled_products = np.random.choice(price_pivot.columns.get_level_values(1).unique(), 300, replace=False)
+    To enable market dynamics analysis:
+    1. Run `precompute_market_dynamics.py` on your local machine
+    2. Upload the generated files to Google Drive
+    3. Update the file IDs in `data_loader.py`
+    4. Redeploy the app
+    """)
+    st.stop()
 
-    for leader in supermarkets:
-        for follower in supermarkets:
-            if leader == follower: continue
-            lags = []
-            for product in sampled_products:
-                try:
-                    series1 = price_pivot[leader][product]
-                    series2 = price_pivot[follower][product]
-                    if series1.isnull().any() or series2.isnull().any() or series1.var() == 0 or series2.var() == 0:
-                        continue
-
-                    max_lag = 7
-                    import warnings
-                    with warnings.catch_warnings():
-                        warnings.simplefilter("ignore", RuntimeWarning)
-                        corrs = [series1.corr(series2.shift(lag)) for lag in range(-max_lag, max_lag + 1)]
-                    if np.nanmax(np.abs(corrs)) > 0.15:
-                        lag_val = np.arange(-max_lag, max_lag + 1)[np.nanargmax(np.abs(corrs))]
-                        lags.append(lag_val)
-                except KeyError:
-                    continue
-
-            if lags:
-                median_lag = np.median(lags)
-                leader_results.append({'leader': leader, 'follower': follower, 'median_lag_days': median_lag})
-
-    leader_df = pd.DataFrame(leader_results)
-    leader_df = leader_df[leader_df['median_lag_days'] != 0].copy()
-    return market_dispersion, leader_df
-
-# Main App Logic
-market_dispersion, leader_df = process_dynamics_data()
+st.success("✓ Market dynamics data loaded successfully!")
 
 tab1, tab2 = st.tabs(["📊 Market Competitiveness", "🕸️ Price Leadership Network"])
 
@@ -144,7 +109,23 @@ with tab2:
             source, target = (row['leader'], row['follower']) if row['median_lag_days'] > 0 else (row['follower'], row['leader'])
             edges.append(Edge(source=source, target=target, label=lag_label, color='#808080', font={'color': '#B0B0B0', 'size': 14}, arrows='to'))
         
-        config = Config(width='100%', height=550, directed=True, physics={"forceAtlas2Based": {"gravitationalConstant": -50, "centralGravity": 0.01, "springLength": 230, "springConstant": 0.08}, "minVelocity": 0.75, "solver": "forceAtlas2Based"}, interaction={'navigationButtons': True, 'tooltipDelay': 200}, nodeHighlightBehavior=True)
+        config = Config(
+            width='100%', 
+            height=550, 
+            directed=True, 
+            physics={
+                "forceAtlas2Based": {
+                    "gravitationalConstant": -50, 
+                    "centralGravity": 0.01, 
+                    "springLength": 230, 
+                    "springConstant": 0.08
+                }, 
+                "minVelocity": 0.75, 
+                "solver": "forceAtlas2Based"
+            }, 
+            interaction={'navigationButtons': True, 'tooltipDelay': 200}, 
+            nodeHighlightBehavior=True
+        )
         
         with st.container(border=True):
             agraph(nodes=nodes, edges=edges, config=config)
@@ -164,7 +145,12 @@ with tab2:
                 delta=f"{fastest_follower_row['median_lag_days']:.1f} days",
                 help=f"This retailer reacts the quickest, following price changes from {fastest_follower_row['leader']}."
             )
+            
+            st.markdown(f"*Based on {leader_df['n_products_analyzed'].sum():,} product comparisons*")
         
-        st.dataframe(leader_df.sort_values('median_lag_days', ascending=False, key=abs), width='stretch')
+        st.dataframe(
+            leader_df[['leader', 'follower', 'median_lag_days', 'n_products_analyzed']].sort_values('median_lag_days', ascending=False, key=abs), 
+            width='stretch'
+        )
 
     st.info("**Insight:** The graph and table clearly show that Aldi is a primary price-setter. Arrows consistently point from Aldi to the 'Big Four,' with a lag of several days. Among the 'Big Four,' the relationships are much faster and more reciprocal, indicating a tight, reactive competitive cluster.", icon="💡")

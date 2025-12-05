@@ -6,12 +6,14 @@ import os
 import numpy as np
 
 FILES_TO_DOWNLOAD = {
-    "canonical_products_e5.parquet": "1YS2k15a6hhu15_KmRpMLo_bh76BxwFLt",
-    "feature_engineered_data.parquet": "1RIs1hNG60uMgwJGWKAHNAWXeDHf7hscf",
+    "canonical_products_e5.parquet": "1-xIpUJ3NbIQRqUGjBtJDp9wRMGXkKKh_",
+    "feature_engineered_data.parquet": "13LNbB761rBccmqQsHpQPR8a9xa4-EDUc",
     "price_predictor_lgbm.joblib": "1_btm3rfSbA-RJQZZTBxDPKchP0gkxIWN",
     "shap_sample_data.parquet": "1V-gMTu5ygSO0LDNNgFiLaHEyaUdA7ABu",
     "shap_values.npy": "1HOfYnCzvaMgqjM57V2btxyOO71ElHVWi",
-    "shap_base_value.txt": "1dFwJ_sV4rXJH3Bb_9emvnChSlpi1g6L4"
+    "shap_base_value.txt": "1dFwJ_sV4rXJH3Bb_9emvnChSlpi1g6L4",
+    "market_dispersion.parquet": "1dSKBRx2baiuXcMFwNvgc8VcMs388z3Et",
+    "price_leadership.parquet": "1C0eBU4Qr7_gKeNwCMvkNYxVWd0881Eef"
 }
 
 def download_file_from_google_drive(id, destination):
@@ -108,3 +110,37 @@ def load_model():
     file_id = FILES_TO_DOWNLOAD[file_path]
     download_file_from_google_drive(file_id, file_path)
     return joblib.load(file_path)
+
+@st.cache_data
+def load_market_dispersion():
+    """
+    Loads the PRE-COMPUTED market dispersion time series.
+    Returns: pandas Series with date index
+    """
+    file_path = "market_dispersion.parquet"
+    file_id = FILES_TO_DOWNLOAD.get(file_path)
+    
+    if not file_id or file_id == "YOUR_GOOGLE_DRIVE_ID_HERE":
+        st.error("⚠️ Pre-computed market dispersion data not configured. Please run precompute_market_dynamics.py locally and upload the files.")
+        return None
+    
+    download_file_from_google_drive(file_id, file_path)
+    df = pd.read_parquet(file_path, engine='pyarrow')
+    return df['dispersion']
+
+@st.cache_data
+def load_price_leadership():
+    """
+    Loads the PRE-COMPUTED price leadership analysis.
+    Returns: pandas DataFrame with leader/follower relationships
+    """
+    file_path = "price_leadership.parquet"
+    file_id = FILES_TO_DOWNLOAD.get(file_path)
+    
+    if not file_id or file_id == "YOUR_GOOGLE_DRIVE_ID_HERE":
+        st.error("⚠️ Pre-computed price leadership data not configured. Please run precompute_market_dynamics.py locally and upload the files.")
+        return None
+    
+    download_file_from_google_drive(file_id, file_path)
+    df = pd.read_parquet(file_path, engine='pyarrow')
+    return df

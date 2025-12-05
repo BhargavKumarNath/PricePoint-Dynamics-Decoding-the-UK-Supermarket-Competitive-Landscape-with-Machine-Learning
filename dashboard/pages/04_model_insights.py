@@ -69,24 +69,35 @@ with st.container(border=True):
     tab1, tab2 = st.tabs(["Bar Chart (Average Impact)", "Beeswarm Plot (Impact Distribution)"])
 
     with tab1:
-        fig, ax = plt.subplots(figsize=(10, 8))
         set_plot_style()
+        fig, ax = plt.subplots(figsize=(10, 8))
         shap.summary_plot(shap_values_sample, X_sample, plot_type="bar", show=False, max_display=15)
-        ax.set_xlabel("mean(|SHAP value|) (average impact on model output)", color="white") 
-        plt.tick_params(axis='x', colors='white') 
-        plt.tick_params(axis='y', colors='white') 
+        
+        # Ensure proper styling and labels are visible
+        ax.set_xlabel("mean(|SHAP value|) (average impact on model output)", color="white", fontsize=11)
+        ax.tick_params(axis='x', colors='white', labelsize=10)
+        ax.tick_params(axis='y', colors='white', labelsize=10)
+        
+        # Make sure y-axis labels are visible
+        plt.tight_layout()
         st.pyplot(fig, width='stretch')
 
     with tab2:
-        fig2, ax2 = plt.subplots(figsize=(10, 8))
         set_plot_style()
+        fig2, ax2 = plt.subplots(figsize=(10, 8))
         shap.summary_plot(shap_values_sample, X_sample, show=False, max_display=15)
-        ax2.set_xlabel("SHAP value (impact on model output)", color="white")
-        plt.tick_params(axis='x', colors='white')
-        plt.tick_params(axis='y', colors='white')
+        
+        # Ensure proper styling and labels
+        ax2.set_xlabel("SHAP value (impact on model output)", color="white", fontsize=11)
+        ax2.tick_params(axis='x', colors='white', labelsize=10)
+        ax2.tick_params(axis='y', colors='white', labelsize=10)
+        
+        # Style the colorbar
         cbar = plt.gcf().axes[-1]
-        cbar.tick_params(colors='white')
-        cbar.set_ylabel(cbar.get_ylabel(), color='white')
+        cbar.tick_params(colors='white', labelsize=9)
+        cbar.set_ylabel(cbar.get_ylabel(), color='white', fontsize=10)
+        
+        plt.tight_layout()
         st.pyplot(fig2, width='stretch')
 
     with st.expander("How to Read These Plots"):
@@ -170,6 +181,7 @@ with st.container(border=True):
             The length of each arrow represents the magnitude of that feature's impact on the prediction.
             """, unsafe_allow_html=True)
 
+# Optional: Feature Importance Table
 with st.expander("📊 View Detailed Feature Importance Table"):
     feature_importance = pd.DataFrame({
         'Feature': X_sample.columns,
