@@ -6,8 +6,8 @@ import os
 import numpy as np
 
 FILES_TO_DOWNLOAD = {
-    "canonical_products_e5.parquet": "1-xIpUJ3NbIQRqUGjBtJDp9wRMGXkKKh_",
-    "feature_engineered_data.parquet": "13LNbB761rBccmqQsHpQPR8a9xa4-EDUc",
+    "canonical_products_e5.parquet": "1YS2k15a6hhu15_KmRpMLo_bh76BxwFLt",
+    "feature_engineered_data.parquet": "1RIs1hNG60uMgwJGWKAHNAWXeDHf7hscf",
     "price_predictor_lgbm.joblib": "1_btm3rfSbA-RJQZZTBxDPKchP0gkxIWN",
     "shap_sample_data.parquet": "1V-gMTu5ygSO0LDNNgFiLaHEyaUdA7ABu",
     "shap_values.npy": "1HOfYnCzvaMgqjM57V2btxyOO71ElHVWi",
