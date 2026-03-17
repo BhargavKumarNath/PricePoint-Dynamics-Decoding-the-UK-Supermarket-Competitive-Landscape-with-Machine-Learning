@@ -2,47 +2,33 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-from data_loader import load_canonical_data 
+from data_loader import load_canonical_data
+from utils import set_plot_style
 
 
-# Page Configuration 
+# Page Configuration
 st.set_page_config(page_title="Market Overview", layout="wide")
 
-# Custom Styling Function for Plots 
-def set_plot_style():
-    """Sets a consistent, dark-themed style for all matplotlib plots."""
-    plt.style.use('dark_background')
-    plt.rcParams.update({
-        'axes.facecolor': '#1E1E1E',
-        'figure.facecolor': '#1E1E1E',
-        'axes.edgecolor': 'white',
-        'axes.labelcolor': 'white',
-        'xtick.color': 'white',
-        'ytick.color': 'white',
-        'text.color': 'white',
-        'legend.facecolor': 'gray',
-    })
-
-# Header 
+# Header
 st.markdown("<h1 style='text-align: center; color: white;'>📈 Market Overview</h1>", unsafe_allow_html=True)
 st.markdown("<p style='text-align: center;'>A 30,000-foot view of the UK supermarket landscape, exploring each retailer's pricing strategy, product portfolio, and category focus.</p>", unsafe_allow_html=True)
 st.divider()
 
-#  Data Loading 
+#  Data Loading
 df = load_canonical_data()
 
-# Section 1: Pricing and Portfolio Analysis 
+# Section 1: Pricing and Portfolio Analysis
 st.subheader("At a Glance: Pricing & Portfolio")
 col1, col2 = st.columns(2)
 
 with col1:
     with st.container(border=True):
-        #  1. Price Distribution Analysis 
+        #  1. Price Distribution Analysis
         st.markdown("##### Price Distribution by Supermarket")
         
         show_outliers = st.checkbox("Show outliers (extreme prices)", value=False, key="dist_outliers")
         
-        set_plot_style() # Apply our custom style
+        set_plot_style()
         fig, ax = plt.subplots(figsize=(8, 5))
         
         sns.boxplot(
@@ -61,12 +47,12 @@ with col1:
 
 with col2:
     with st.container(border=True):
-        # 2. Product Portfolio Analysis 
+        # 2. Product Portfolio Analysis
         st.markdown("##### Product Portfolio Size")
         
         portfolio_size = df.groupby('supermarket')['canonical_name'].nunique().sort_values(ascending=False)
         
-        set_plot_style() 
+        set_plot_style()
         fig, ax = plt.subplots(figsize=(8, 5))
         sns.barplot(x=portfolio_size.index, y=portfolio_size.values, palette='mako', ax=ax, hue=portfolio_size.index, legend=False)
         
@@ -81,7 +67,7 @@ with col2:
 
 st.divider()
 
-# Section 2: Own Brand Strategy Analysis 
+# Section 2: Own Brand Strategy Analysis
 st.subheader("Deep Dive: Own Brand Strategy")
 col3, col4 = st.columns([1, 2]) 
 
@@ -97,10 +83,10 @@ with col3:
 
 with col4:
     with st.container(border=True, height=450): 
-        # 3b. Own Brand vs Branded Count 
+        # 3b. Own Brand vs Branded Count
         st.markdown("##### Product Listings: Own Brand vs. Branded")
         
-        set_plot_style() 
+        set_plot_style()
         fig, ax = plt.subplots(figsize=(8, 4))
         sns.countplot(data=df, x='supermarket', hue='own_brand', palette={True: '#6495ED', False: '#FF7F50'}, ax=ax)
         

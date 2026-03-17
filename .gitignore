@@ -1,5 +1,23 @@
-data/
-.idea
-.venv
-*.parquet
-*.joblib
+# Raw data — too large to track
+data/00_raw/
+data/01_interim/
+
+# Large processed files — downloaded via Google Drive at runtime
+data/02_processed/
+
+# IDE & Environment
+.idea/
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary / scratch files
+*.log
+
+.gitignore
+.agent/

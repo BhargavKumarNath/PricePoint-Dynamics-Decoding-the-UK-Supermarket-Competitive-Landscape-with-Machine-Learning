@@ -1,16 +1,16 @@
+import time
+
 import streamlit as st
 import pandas as pd
-import joblib
-from data_loader import load_model, load_features_data, get_raw_features_df 
+from data_loader import load_model, get_raw_features_df
 
 st.set_page_config(layout="wide")
-st.title("Interactive Price Predictor")
-st.markdown("Select a product's features using the sidebar to get a real time price prediction from our LightGBM model")
+st.title("🤖 Interactive Price Predictor")
+st.markdown("Select a product's features using the sidebar to get a real-time price prediction from our LightGBM model.")
 
 # Load Model and Data
 model = load_model()
-# df_model_processed = load_features_data() # Removed unused heavy load
-df = get_raw_features_df() 
+df = get_raw_features_df()
 
 st.sidebar.header("Product Features")
 
@@ -59,6 +59,15 @@ if st.sidebar.button("Predict Price"):
 
     model_features = model.feature_name_
     input_vector = prepare_input_data(user_data, model_features)
+
+    # Timed prediction for latency display
+    start = time.perf_counter()
     prediction = model.predict(input_vector)[0]
-    st.success(f"Predicted Price: £{prediction:.2f}")
+    latency_ms = (time.perf_counter() - start) * 1000
+
+    col1, col2 = st.columns(2)
+    with col1:
+        st.success(f"Predicted Price: **£{prediction:.2f}**")
+    with col2:
+        st.info(f"⚡ Inference latency: **{latency_ms:.2f} ms**")
     st.balloons()

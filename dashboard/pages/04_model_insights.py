@@ -4,24 +4,10 @@ import shap
 import matplotlib.pyplot as plt
 import streamlit.components.v1 as components
 from data_loader import load_model, load_shap_sample_data, load_shap_values
+from utils import set_plot_style
 
 # Page Configuration
 st.set_page_config(page_title="Model Insights", layout="wide")
-
-# Custom Styling Function for Plots
-def set_plot_style():
-    """Sets a consistent, dark-themed style for all matplotlib plots."""
-    plt.style.use('dark_background')
-    plt.rcParams.update({
-        'axes.facecolor': '#0E1117', 
-        'figure.facecolor': '#0E1117',
-        'axes.edgecolor': '#B0B0B0',
-        'axes.labelcolor': '#B0B0B0',
-        'xtick.color': '#B0B0B0',
-        'ytick.color': '#B0B0B0',
-        'text.color': '#FFFFFF', 
-        'legend.facecolor': '#1E1E1E',
-    })
 
 st.markdown("<h1 style='text-align: center; color: white;'>🧠 Model Insights & Explainable AI (XAI)</h1>", unsafe_allow_html=True)
 st.markdown("<p style='text-align: center;'>This page delves into the 'brain' of our price prediction model. We use SHAP to understand not just *what* the model predicts, but *why*.</p>", unsafe_allow_html=True)
@@ -40,11 +26,10 @@ if X_sample is None or shap_values_sample is None:
     st.error("""
     ### Pre-computed SHAP data not available
     
-    To enable SHAP analysis:
-    1. Run `precompute_shap_values.py` on your local machine
-    2. Upload the generated files to Google Drive
-    3. Update the file IDs in `data_loader.py`
-    4. Redeploy the app
+    To enable SHAP analysis, run:
+    ```bash
+    python run.py precompute
+    ```
     """)
     st.stop()
 
@@ -73,12 +58,10 @@ with st.container(border=True):
         fig, ax = plt.subplots(figsize=(10, 8))
         shap.summary_plot(shap_values_sample, X_sample, plot_type="bar", show=False, max_display=15)
         
-        # Ensure proper styling and labels are visible
         ax.set_xlabel("mean(|SHAP value|) (average impact on model output)", color="white", fontsize=11)
         ax.tick_params(axis='x', colors='white', labelsize=10)
         ax.tick_params(axis='y', colors='white', labelsize=10)
         
-        # Make sure y-axis labels are visible
         plt.tight_layout()
         st.pyplot(fig, width='stretch')
 
@@ -87,12 +70,10 @@ with st.container(border=True):
         fig2, ax2 = plt.subplots(figsize=(10, 8))
         shap.summary_plot(shap_values_sample, X_sample, show=False, max_display=15)
         
-        # Ensure proper styling and labels
         ax2.set_xlabel("SHAP value (impact on model output)", color="white", fontsize=11)
         ax2.tick_params(axis='x', colors='white', labelsize=10)
         ax2.tick_params(axis='y', colors='white', labelsize=10)
         
-        # Style the colorbar
         cbar = plt.gcf().axes[-1]
         cbar.tick_params(colors='white', labelsize=9)
         cbar.set_ylabel(cbar.get_ylabel(), color='white', fontsize=10)
@@ -117,7 +98,6 @@ with st.container(border=True):
     st.subheader("🔬 Local Prediction Explanations")
     st.markdown("Let's break down a **single prediction**. Select a product instance below to see how the model arrived at its forecast.")
 
-    # Create a more user-friendly selector
     sample_indices = X_sample.index.tolist()
     selected_idx = st.selectbox(
         "Select a product instance to analyze:",
@@ -129,7 +109,6 @@ with st.container(border=True):
     random_index = sample_indices[selected_idx]
 
     if random_index is not None:
-        # Get the instance data
         instance = X_sample.loc[[random_index]]
         shap_value_instance = shap_values_sample[selected_idx:selected_idx+1]
         prediction = model.predict(instance)[0]
@@ -158,7 +137,6 @@ with st.container(border=True):
             st.warning(f"Could not render interactive force plot: {e}")
             st.markdown("Showing top influential features instead:")
             
-            # Fallback: Show top features in a table
             feature_contributions = pd.DataFrame({
                 'Feature': X_sample.columns,
                 'Value': instance.values[0],

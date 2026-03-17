@@ -3,8 +3,9 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from streamlit_agraph import agraph, Node, Edge, Config
 from data_loader import load_market_dispersion, load_price_leadership
+from utils import set_plot_style
 
-# Page Configuration 
+# Page Configuration
 st.set_page_config(page_title="Market Dynamics", layout="wide")
 
 st.markdown("""
@@ -20,23 +21,6 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Plotting Style Function 
-def set_plot_style():
-    """Sets a consistent, high-contrast, dark-themed style for matplotlib plots."""
-    plt.style.use('dark_background')
-    plt.rcParams.update({
-        'axes.facecolor': '#0E1117',
-        'figure.facecolor': '#0E1117',
-        'axes.edgecolor': "#403E3E",
-        'axes.labelcolor': 'white',
-        'xtick.color': 'white',
-        'ytick.color': 'white',
-        'text.color': 'white',
-        'grid.color': '#404040',
-        'legend.facecolor': '#1E1E1E',
-        'legend.edgecolor': 'gray'
-    })
-
 st.markdown("<h1 style='text-align: center; color: white;'>🌐 Market Dynamics & Price Leadership</h1>", unsafe_allow_html=True)
 st.markdown("<p style='text-align: center;'>This section explores the strategic interactions between retailers over time, answering the question: <b>Who leads, and who follows?</b></p>", unsafe_allow_html=True)
 st.divider()
@@ -51,11 +35,10 @@ if market_dispersion is None or leader_df is None:
     st.error("""
     ### Pre-computed market dynamics data not available
     
-    To enable market dynamics analysis:
-    1. Run `precompute_market_dynamics.py` on your local machine
-    2. Upload the generated files to Google Drive
-    3. Update the file IDs in `data_loader.py`
-    4. Redeploy the app
+    To enable market dynamics analysis, run:
+    ```bash
+    python run.py precompute
+    ```
     """)
     st.stop()
 

@@ -2,11 +2,11 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-from data_loader import load_canonical_data 
+from data_loader import load_canonical_data
 
 st.set_page_config(layout="wide")
 st.title("🧺 Basket-Level Price Comparison") 
-st.markdown("Here we compare the cost of standardised shopping baskets across supermarkets, powered by our advanced prodct matching model")
+st.markdown("Here we compare the cost of standardised shopping baskets across supermarkets, powered by our advanced product matching model.")
 
 @st.cache_data
 def get_pivot_table():
