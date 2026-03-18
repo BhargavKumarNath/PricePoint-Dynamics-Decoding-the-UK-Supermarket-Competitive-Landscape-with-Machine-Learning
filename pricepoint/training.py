@@ -83,7 +83,7 @@ def train_model(
     X_train: pd.DataFrame,
     y_train: pd.Series,
     lgbm_params: dict,
-) -> "lightgbm.LGBMRegressor":
+):
     """Train a LightGBM regressor.
 
     Parameters
@@ -110,7 +110,7 @@ def train_model(
 
 
 def evaluate_model(
-    model: "lightgbm.LGBMRegressor",
+    model,
     X_test: pd.DataFrame,
     y_test: pd.Series,
 ) -> dict[str, float]:

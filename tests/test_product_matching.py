@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import pytest
 
 from pricepoint.product_matching import normalise_product_name
 

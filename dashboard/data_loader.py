@@ -23,24 +23,21 @@ import requests
 import streamlit as st
 import yaml
 
-# ---------------------------------------------------------------------------
 # Configuration helpers
-# ---------------------------------------------------------------------------
 
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent
 _CONFIG_PATH = _PROJECT_ROOT / "config.yaml"
 
 # Google Drive file IDs — used as fallback when files aren't present on disk.
-# Update these IDs if you re-upload artifacts.
 _GDRIVE_IDS: dict[str, str] = {
-    "canonical_products_e5.parquet": "1-xIpUJ3NbIQRqUGjBtJDp9wRMGXkKKh_",
-    "feature_engineered_data.parquet": "13LNbB761rBccmqQsHpQPR8a9xa4-EDUc",
-    "price_predictor_lgbm.joblib": "1_btm3rfSbA-RJQZZTBxDPKchP0gkxIWN",
-    "shap_sample_data.parquet": "1V-gMTu5ygSO0LDNNgFiLaHEyaUdA7ABu",
-    "shap_values.npy": "1HOfYnCzvaMgqjM57V2btxyOO71ElHVWi",
-    "shap_base_value.txt": "1dFwJ_sV4rXJH3Bb_9emvnChSlpi1g6L4",
-    "market_dispersion.parquet": "1dSKBRx2baiuXcMFwNvgc8VcMs388z3Et",
-    "price_leadership.parquet": "1C0eBU4Qr7_gKeNwCMvkNYxVWd0881Eef",
+    "canonical_products_e5.parquet": "11_cnPiDfttEPjiPLZreuQYSdFt5eYDN4",
+    "feature_engineered_data.parquet": "16FH8zRgLZK68cFlcqSUQnWWu3TGnrQi_",
+    "price_predictor_lgbm.joblib": "1vBzTXy7PvVKIXS1G7HjlNHCOSkhGrXhi",
+    "shap_sample_data.parquet": "1nrkuLNfuBkd7XC1hfEP9UkXRfXLN8dW3",
+    "shap_values.npy": "1kqwR3ailFxNH2Tfn9MWyNGgsZVS3edOx",
+    "shap_base_value.txt": "1fczoPcm3JqreXfUZn6Cz_DnpQFeqJnXG",
+    "market_dispersion.parquet": "15OH7gaHFK6G9aMt3N2g-RKfNNS5MNQYv",
+    "price_leadership.parquet": "1HJhsw9SV6tp4TYi0MPeRJo79Zc_Da67i",
 }
 
 
@@ -55,9 +52,7 @@ def _resolve(rel_path: str) -> Path:
     return _PROJECT_ROOT / rel_path
 
 
-# ---------------------------------------------------------------------------
-# Google Drive download helper (replaces gdown dependency)
-# ---------------------------------------------------------------------------
+# Google Drive download helper 
 
 
 def _download_from_gdrive(file_id: str, destination: Path) -> None:
@@ -121,9 +116,7 @@ def _ensure_file(path: Path, gdrive_key: str | None = None) -> Path:
     st.stop()
 
 
-# ---------------------------------------------------------------------------
 # DuckDB connection (shared, cached)
-# ---------------------------------------------------------------------------
 
 
 @st.cache_resource
@@ -132,9 +125,7 @@ def _get_duckdb_conn() -> duckdb.DuckDBPyConnection:
     return duckdb.connect(database=":memory:")
 
 
-# ---------------------------------------------------------------------------
 # Canonical products (9.5M rows — DuckDB queries)
-# ---------------------------------------------------------------------------
 
 
 @st.cache_data(ttl=3600)
@@ -164,9 +155,7 @@ def load_canonical_data() -> pd.DataFrame:
     return df
 
 
-# ---------------------------------------------------------------------------
 # Feature data (for price predictor)
-# ---------------------------------------------------------------------------
 
 
 @st.cache_data(ttl=3600)
@@ -181,9 +170,7 @@ def get_raw_features_df() -> pd.DataFrame:
     return conn.execute(query).fetchdf()
 
 
-# ---------------------------------------------------------------------------
 # Model
-# ---------------------------------------------------------------------------
 
 
 @st.cache_resource
@@ -195,9 +182,7 @@ def load_model():
     return joblib.load(model_path)
 
 
-# ---------------------------------------------------------------------------
 # SHAP pre-computed artifacts
-# ---------------------------------------------------------------------------
 
 
 @st.cache_data(ttl=3600)
@@ -228,9 +213,7 @@ def load_shap_values() -> tuple[np.ndarray | None, float | None]:
     return shap_values, base_value
 
 
-# ---------------------------------------------------------------------------
 # Market dynamics pre-computed artifacts
-# ---------------------------------------------------------------------------
 
 
 @st.cache_data(ttl=3600)

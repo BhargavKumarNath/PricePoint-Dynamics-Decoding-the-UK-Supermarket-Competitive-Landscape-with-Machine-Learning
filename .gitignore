@@ -1,9 +1,13 @@
-# Raw data — too large to track
-data/00_raw/
-data/01_interim/
+# Data — large files served from Google Drive at runtime
+data/
+*.parquet
+*.joblib
+*.npy
 
-# Large processed files — downloaded via Google Drive at runtime
-data/02_processed/
+# Precomputed artifacts — served from Google Drive
+market_dynamics_precomputed/
+shap_precomputed/
+models/
 
 # IDE & Environment
 .idea/
@@ -19,5 +23,5 @@ Thumbs.db
 # Temporary / scratch files
 *.log
 
-.gitignore
+# Agent config
 .agent/

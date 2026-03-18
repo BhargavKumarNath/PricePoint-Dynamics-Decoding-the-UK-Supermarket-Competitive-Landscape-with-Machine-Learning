@@ -105,7 +105,7 @@ def generate_embeddings(
     return embeddings
 
 
-def build_faiss_index(embeddings: np.ndarray) -> "faiss.IndexFlatIP":
+def build_faiss_index(embeddings: np.ndarray):
     """Build a FAISS inner-product index from embeddings.
 
     Parameters
