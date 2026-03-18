@@ -32,7 +32,7 @@ _CONFIG_PATH = _PROJECT_ROOT / "config.yaml"
 _GDRIVE_IDS: dict[str, str] = {
     "canonical_products_e5.parquet": "11_cnPiDfttEPjiPLZreuQYSdFt5eYDN4",
     "feature_engineered_data.parquet": "16FH8zRgLZK68cFlcqSUQnWWu3TGnrQi_",
-    "price_predictor_lgbm.joblib": "1vBzTXy7PvVKIXS1G7HjlNHCOSkhGrXhi",
+    "price_predictor_lgbm.joblib": "1X0GQoHWVrHtHiovKQmt_hpfK9-0jpF_f",
     "shap_sample_data.parquet": "1nrkuLNfuBkd7XC1hfEP9UkXRfXLN8dW3",
     "shap_values.npy": "1kqwR3ailFxNH2Tfn9MWyNGgsZVS3edOx",
     "shap_base_value.txt": "1fczoPcm3JqreXfUZn6Cz_DnpQFeqJnXG",

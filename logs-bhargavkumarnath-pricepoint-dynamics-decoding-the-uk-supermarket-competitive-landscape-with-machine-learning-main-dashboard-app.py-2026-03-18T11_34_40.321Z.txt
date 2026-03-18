@@ -1,0 +1,423 @@
+
+[     UTC     ] Logs for pricepoint.streamlit.app/
+────────────────────────────────────────────────────────────────────────────────────────
+[11:31:22] 🖥 Provisioning machine...
+[11:31:22] 🎛 Preparing system...
+[11:31:22] ⛓ Spinning up manager process...
+[11:31:19] 🚀 Starting up repository: 'pricepoint-dynamics-decoding-the-uk-supermarket-competitive-landscape-with-machine-learning', branch: 'main', main module: 'dashboard/app.py'
+[11:31:19] 🐙 Cloning repository...
+[11:31:21] 🐙 Cloning into '/mount/src/pricepoint-dynamics-decoding-the-uk-supermarket-competitive-landscape-with-machine-learning'...
+
+[11:31:21] 🐙 Cloned repository!
+[11:31:21] 🐙 Pulling code changes from Github...
+[11:31:22] 📦 Processing dependencies...
+
+──────────────────────────────────────── uv ───────────────────────────────────────────
+
+Using uv pip install.
+Using Python 3.13.12 environment at /home/adminuser/venv
+Resolved 107 packages in 1.08s
+Prepared 107 packages in 42.48s
+Installed 107 packages in 870ms
+ + altair==6.0.0
+ + annotated-doc==0.0.4
+ + anyio==4.12.1[2026-03-18 11:32:07.297423] 
+ + attrs==25.4.0
+ + beautifulsoup4==4.14.3
+ + blinker==1.9.0
+ + cachetools==7.0.5
+ + certifi==2026.2.25
+ + charset-normalizer==3.4.6
+ + click==8.3.1
+ + cloudpickle==3.1.2
+ + contourpy==1.3.3
+ + cuda-bindings==12.9.4
+ + cuda-pathfinder==1.4.3
+ +[2026-03-18 11:32:07.298152]  cycler==0.12.1
+ + duckdb==1.5.0
+ + faiss-cpu==1.13.2
+ + filelock==3.25.2
+ + fonttools==4.62.1
+ + fsspec==2026.2.0
+ + gdown==5.2.1
+ + gitdb==4.0.12
+ + gitpython==3.1.46
+ + h11==0.16.0
+ + hf-xet==1.4.2
+ +[2026-03-18 11:32:07.298368]  httpcore==1.0.9
+ + httpx==0.28.1
+ + huggingface-hub==1.7.1
+ + idna==3.11
+ + jinja2==3.1.6
+ + joblib[2026-03-18 11:32:07.298632] ==1.5.3
+ + jsonschema==4.26.0
+ + jsonschema-specifications==2025.9.1
+ + kiwisolver==1.5.0
+ + lightgbm==4.6.0
+ + llvmlite==0.46.0
+ + markdown-it-py==4.0.0[2026-03-18 11:32:07.298876] 
+ + markupsafe==3.0.3
+ + matplotlib==3.10.8
+ + mdurl==0.1.2
+ + mpmath==1.3.0
+ + narwhals==2.18.0
+ + networkx==3.6.1
+ + numba==0.64.0
+ + numpy==2.4.3
+ + nvidia-cublas-cu12==12.8.4.1
+ +[2026-03-18 11:32:07.299301]  nvidia-cuda-cupti-cu12==12.8.90
+ + nvidia-cuda-nvrtc-cu12==12.8.93
+ + nvidia-cuda-runtime-cu12==12.8.90
+ + nvidia-cudnn-cu12==9.10.2.21
+ + nvidia-cufft-cu12==[2026-03-18 11:32:07.299569] 11.3.3.83
+ + nvidia-cufile-cu12==1.13.1.3
+ + nvidia-curand-cu12==10.3.9.90
+ + nvidia-cusolver-cu12==11.7.3.90
+ + nvidia-cusparse-cu12==12.5.8.93
+ + nvidia-cusparselt-cu12==0.7.1[2026-03-18 11:32:07.299823] 
+ + nvidia-nccl-cu12==2.27.5
+ + nvidia-nvjitlink-cu12==12.8.93
+ + nvidia-nvshmem-cu12==3.4.5
+ + nvidia-nvtx-cu12==12.8.90
+ + packaging==26.0[2026-03-18 11:32:07.299972] 
+ + pandas==2.3.3
+ + pillow==12.1.1
+ + protobuf==6.33.5
+ + pyarrow==23.0.1
+ + pydeck==0.9.1
+ [2026-03-18 11:32:07.300113] + pygments==2.19.2
+ + pyparsing==3.3.2
+ + pysocks==1.7.1
+ + python-dateutil==2.9.0.post0
+ + pytz==2026.1.post1[2026-03-18 11:32:07.300266] 
+ + pyyaml==6.0.3
+ + rdflib==7.6.0
+ + referencing==0.37.0
+ + regex==2026.2.28
+ + requests==2.32.5
+ +[2026-03-18 11:32:07.300461]  rich==14.3.3
+ + rpds-py==0.30.0
+ + safetensors==0.7.0
+ + scikit-learn==1.8.0
+ + scipy==[2026-03-18 11:32:07.300651] 1.17.1
+ + seaborn==0.13.2
+ + sentence-transformers==5.3.0
+ + setuptools==82.0.1
+ + shap==0.51.0
+ + shellingham[2026-03-18 11:32:07.300800] ==1.5.4
+ + six==1.17.0
+ + slicer==0.0.8
+ + smmap==5.0.3
+ + soupsieve==2.8.3[2026-03-18 11:32:07.300926] 
+ + streamlit==1.55.0
+ + streamlit-agraph==0.0.45
+ + sympy==1.14.0
+ + tenacity==9.1.4
+ + threadpoolctl[2026-03-18 11:32:07.301089] ==3.6.0
+ + tokenizers==0.22.2
+ + toml==0.10.2
+ + torch==2.10.0
+ + tornado==[2026-03-18 11:32:07.301231] 6.5.5
+ + tqdm==4.67.3
+ + transformers==5.3.0
+ + triton==3.6.0
+ + typer==0.24.1
+ + typing-extensions[2026-03-18 11:32:07.301366] ==4.15.0
+ + tzdata==2025.3
+ + urllib3==2.6.3
+ + watchdog==6.0.0
+Checking if Streamlit is installed
+Found Streamlit version 1.55.0 in the environment
+Installing rich for an improved exception logging
+Using uv pip install.
+Using Python 3.13.12 environment at /home/adminuser/venv
+Audited 1 package in 6ms
+
+────────────────────────────────────────────────────────────────────────────────────────
+
+[11:32:09] 🐍 Python dependencies were installed from /mount/src/pricepoint-dynamics-decoding-the-uk-supermarket-competitive-landscape-with-machine-learning/dashboard/requirements.txt using uv.
+[11:32:09] 📦 WARN: More than one requirements file detected in the repository. Available options: uv /mount/src/pricepoint-dynamics-decoding-the-uk-supermarket-competitive-landscape-with-machine-learning/dashboard/requirements.txt, uv /mount/src/pricepoint-dynamics-decoding-the-uk-supermarket-competitive-landscape-with-machine-learning/requirements.txt. Used: uv with /mount/src/pricepoint-dynamics-decoding-the-uk-supermarket-competitive-landscape-with-machine-learning/dashboard/requirements.txt
+Check if streamlit is installed
+Streamlit is already installed
+[11:32:10] 📦 Processed dependencies!
+
+
+
+Downloading...
+From (original): https://drive.google.com/uc?id=11_cnPiDfttEPjiPLZreuQYSdFt5eYDN4
+From (redirected): https://drive.google.com/uc?id=11_cnPiDfttEPjiPLZreuQYSdFt5eYDN4&confirm=t&uuid=15b60d19-37a5-45f3-bddb-25a63cbf30a6
+To: /mount/src/pricepoint-dynamics-decoding-the-uk-supermarket-competitive-landscape-with-machine-learning/data/02_processed/canonical_products_e5.parquet
+  0%|          | 0.00/722M [00:00<?, ?B/s][2026-03-18 11:33:13.391739]   1%|          | 6.82M/722M [00:00<00:12, 55.9MB/s][2026-03-18 11:33:13.492730]   4%|▍         | 27.8M/722M [00:00<00:05, 138MB/s] [2026-03-18 11:33:13.593024]   7%|▋         | 51.9M/722M [00:00<00:03, 183MB/s][2026-03-18 11:33:13.693037]  10%|█         | 75.0M/722M [00:00<00:03, 201MB/s][2026-03-18 11:33:13.793331]  14%|█▍        | 103M/722M [00:00<00:02, 230MB/s] [2026-03-18 11:33:13.894845]  18%|█▊        | 133M/722M [00:00<00:02, 250MB/s][2026-03-18 11:33:14.008947]  22%|██▏       | 158M/722M [00:00<00:02, 241MB/s][2026-03-18 11:33:14.124991]  25%|██▌       | 183M/722M [00:00<00:02, 231MB/s][2026-03-18 11:33:14.225804]  29%|██▉       | 208M/722M [00:00<00:02, 235MB/s][2026-03-18 11:33:14.326429]  33%|███▎      | 235M/722M [00:01<00:01, 246MB/s][2026-03-18 11:33:14.426842]  36%|███▌      | 260M/722M [00:01<00:01, 247MB/s][2026-03-18 11:33:14.528060]  40%|███▉      | 287M/722M [00:01<00:01, 252MB/s][2026-03-18 11:33:14.628150]  44%|████▎     | 315M/722M [00:01<00:01, 260MB/s][2026-03-18 11:33:14.729004]  48%|████▊     | 344M/722M [00:01<00:01, 269MB/s][2026-03-18 11:33:14.862997]  51%|█████▏    | 371M/722M [00:01<00:01, 245MB/s][2026-03-18 11:33:14.963013]  55%|█████▌    | 397M/722M [00:01<00:01, 249MB/s][2026-03-18 11:33:15.064040]  59%|█████▊    | 424M/722M [00:01<00:01, 253MB/s][2026-03-18 11:33:15.253453]  62%|██████▏   | 449M/722M [00:01<00:01, 202MB/s][2026-03-18 11:33:15.355282]  66%|██████▋   | 479M/722M [00:02<00:01, 224MB/s][2026-03-18 11:33:15.456758]  70%|███████   | 508M/722M [00:02<00:00, 240MB/s][2026-03-18 11:33:15.579845]  74%|███████▍  | 535M/722M [00:02<00:00, 235MB/s][2026-03-18 11:33:15.681231]  78%|███████▊  | 560M/722M [00:02<00:00, 237MB/s][2026-03-18 11:33:15.783857]  82%|████████▏ | 589M/722M [00:02<00:00, 251MB/s][2026-03-18 11:33:15.885532]  86%|████████▌ | 618M/722M [00:02<00:00, 259MB/s][2026-03-18 11:33:15.986155]  90%|████████▉ | 646M/722M [00:02<00:00, 267MB/s][2026-03-18 11:33:16.107607]  93%|█████████▎| 674M/722M [00:02<00:00, 258MB/s][2026-03-18 11:33:16.382741]  97%|█████████▋| 700M/722M [00:03<00:00, 171MB/s][2026-03-18 11:33:16.494078] 100%|█████████▉| 721M/722M [00:03<00:00, 176MB/s][2026-03-18 11:33:16.494498] 100%|██████████| 722M/722M [00:03<00:00, 224MB/s]
+/mount/src/pricepoint-dynamics-decoding-the-uk-supermarket-competitive-landscape-with-machine-learning/dashboard/pages/01_market_overview.py:53: FutureWarning: The default of observed=False is deprecated and will be changed to True in a future version of pandas. Pass observed=False to retain current behavior or observed=True to adopt the future default and silence this warning.
+  portfolio_size = df.groupby('supermarket')['canonical_name'].nunique().sort_values(ascending=False)
+/mount/src/pricepoint-dynamics-decoding-the-uk-supermarket-competitive-landscape-with-machine-learning/dashboard/pages/01_market_overview.py:78: FutureWarning: The default of observed=False is deprecated and will be changed to True in a future version of pandas. Pass observed=False to retain current behavior or observed=True to adopt the future default and silence this warning.
+  own_brand_percentage = df.groupby('supermarket')['own_brand'].mean() * 100
+────────────────────── Traceback (most recent call last) ───────────────────────
+  /home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptru  
+  nner/exec_code.py:129 in exec_func_with_error_handling                        
+                                                                                
+  /home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptru  
+  nner/script_runner.py:687 in code_to_exec                                     
+                                                                                
+  /home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptru  
+  nner/script_runner.py:166 in _mpa_v1                                          
+                                                                                
+  /home/adminuser/venv/lib/python3.13/site-packages/streamlit/navigation/page.  
+  py:380 in run                                                                 
+                                                                                
+  /mount/src/pricepoint-dynamics-decoding-the-uk-supermarket-competitive-lands  
+  cape-with-machine-learning/dashboard/pages/01_market_overview.py:78 in        
+  <module>                                                                      
+                                                                                
+     75 │   with st.container(border=True, height=450):                         
+     76 │   │   # 3a. Own Brand Percentage                                      
+     77 │   │   st.markdown("##### Percentage of Own Brand")                    
+  ❱  78 │   │   own_brand_percentage = df.groupby('supermarket')['own_brand'].  
+     79 │   │   st.dataframe(own_brand_percentage.sort_values(ascending=False)  
+     80 │   │   st.markdown("""                                                 
+     81 │   │   **Insight:** Contrary to common perception, it's the larger su  
+                                                                                
+  /home/adminuser/venv/lib/python3.13/site-packages/pandas/core/groupby/groupb  
+  y.py:2459 in mean                                                             
+                                                                                
+    2456 │   │   │   │   min_periods=0,                                         
+    2457 │   │   │   )                                                          
+    2458 │   │   else:                                                          
+  ❱ 2459 │   │   │   result = self._cython_agg_general(                         
+    2460 │   │   │   │   "mean",                                                
+    2461 │   │   │   │   alt=lambda x: Series(x, copy=False).mean(numeric_only  
+    2462 │   │   │   │   numeric_only=numeric_only,                             
+                                                                                
+  /home/adminuser/venv/lib/python3.13/site-packages/pandas/core/groupby/groupb  
+  y.py:2005 in _cython_agg_general                                              
+                                                                                
+    2002 │   │   │   result = self._agg_py_fallback(how, values, ndim=data.ndi  
+    2003 │   │   │   return result                                              
+    2004 │   │                                                                  
+  ❱ 2005 │   │   new_mgr = data.grouped_reduce(array_func)                      
+    2006 │   │   res = self._wrap_agged_manager(new_mgr)                        
+    2007 │   │   if how in ["idxmin", "idxmax"]:                                
+    2008 │   │   │   res = self._wrap_idxmax_idxmin(res)                        
+                                                                                
+  /home/adminuser/venv/lib/python3.13/site-packages/pandas/core/internals/base  
+  .py:367 in grouped_reduce                                                     
+                                                                                
+    364 │                                                                       
+    365 │   def grouped_reduce(self, func):                                     
+    366 │   │   arr = self.array                                                
+  ❱ 367 │   │   res = func(arr)                                                 
+    368 │   │   index = default_index(len(res))                                 
+    369 │   │                                                                   
+    370 │   │   mgr = type(self).from_array(res, index)                         
+                                                                                
+  /home/adminuser/venv/lib/python3.13/site-packages/pandas/core/groupby/groupb  
+  y.py:1980 in array_func                                                       
+                                                                                
+    1977 │   │                                                                  
+    1978 │   │   def array_func(values: ArrayLike) -> ArrayLike:                
+    1979 │   │   │   try:                                                       
+  ❱ 1980 │   │   │   │   result = self._grouper._cython_operation(              
+    1981 │   │   │   │   │   "aggregate",                                       
+    1982 │   │   │   │   │   values,                                            
+    1983 │   │   │   │   │   how,                                               
+                                                                                
+  /home/adminuser/venv/lib/python3.13/site-packages/pandas/core/groupby/ops.py  
+  :840 in _cython_operation                                                     
+                                                                                
+     837 │   │                                                                  
+     838 │   │   ids, _, _ = self.group_info                                    
+     839 │   │   ngroups = self.ngroups                                         
+  ❱  840 │   │   return cy_op.cython_operation(                                 
+     841 │   │   │   values=values,                                             
+     842 │   │   │   axis=axis,                                                 
+     843 │   │   │   min_count=min_count,                                       
+                                                                                
+  /home/adminuser/venv/lib/python3.13/site-packages/pandas/core/groupby/ops.py  
+  :550 in cython_operation                                                      
+                                                                                
+     547 │   │                                                                  
+     548 │   │   if not isinstance(values, np.ndarray):                         
+     549 │   │   │   # i.e. ExtensionArray                                      
+  ❱  550 │   │   │   return values._groupby_op(                                 
+     551 │   │   │   │   how=self.how,                                          
+     552 │   │   │   │   has_dropped_na=self.has_dropped_na,                    
+     553 │   │   │   │   min_count=min_count,                                   
+                                                                                
+  /home/adminuser/venv/lib/python3.13/site-packages/pandas/core/arrays/categor  
+  ical.py:2781 in _groupby_op                                                   
+                                                                                
+    2778 │   │   ]:                                                             
+    2779 │   │   │   if kind == "transform":                                    
+    2780 │   │   │   │   raise TypeError(f"{dtype} type does not support {how}  
+  ❱ 2781 │   │   │   raise TypeError(f"{dtype} dtype does not support aggregat  
+    2782 │   │                                                                  
+    2783 │   │   result_mask = None                                             
+    2784 │   │   mask = self.isna()                                             
+────────────────────────────────────────────────────────────────────────────────
+TypeError: category dtype does not support aggregation 'mean'
+/mount/src/pricepoint-dynamics-decoding-the-uk-supermarket-competitive-landscape-with-machine-learning/dashboard/pages/02_Basket_analysis.py:18: FutureWarning: The default value of observed=False is deprecated and will change to observed=True in a future version of pandas. Specify observed=False to silence this warning and retain the current behavior
+  pivot = df_latest.pivot_table(index='canonical_name', columns='supermarket', values='prices')
+────────────────────── Traceback (most recent call last) ───────────────────────
+  /home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptru  
+  nner/exec_code.py:129 in exec_func_with_error_handling                        
+                                                                                
+  /home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptru  
+  nner/script_runner.py:687 in code_to_exec                                     
+                                                                                
+  /home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptru  
+  nner/script_runner.py:166 in _mpa_v1                                          
+                                                                                
+  /home/adminuser/venv/lib/python3.13/site-packages/streamlit/navigation/page.  
+  py:380 in run                                                                 
+                                                                                
+  /mount/src/pricepoint-dynamics-decoding-the-uk-supermarket-competitive-lands  
+  cape-with-machine-learning/dashboard/pages/03_price_predictor.py:12 in        
+  <module>                                                                      
+                                                                                
+     9 st.markdown("Select a product's features using the sidebar to get a rea  
+    10                                                                          
+    11 # Load Model and Data                                                    
+  ❱ 12 model = load_model()                                                     
+    13 df = get_raw_features_df()                                               
+    14                                                                          
+    15 st.sidebar.header("Product Features")                                    
+                                                                                
+  /home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/caching/  
+  cache_utils.py:281 in __call__                                                
+                                                                                
+  /home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/caching/  
+  cache_utils.py:326 in _get_or_create_cached_value                             
+                                                                                
+  /home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/caching/  
+  cache_utils.py:385 in _handle_cache_miss                                      
+                                                                                
+  /mount/src/pricepoint-dynamics-decoding-the-uk-supermarket-competitive-lands  
+  cape-with-machine-learning/dashboard/data_loader.py:168 in load_model         
+                                                                                
+    165 │   cfg = _load_config()                                                
+    166 │   model_path = _resolve(cfg["model"]["output_dir"]) / cfg["model"]["  
+    167 │   _ensure_file(model_path, "price_predictor_lgbm.joblib")             
+  ❱ 168 │   return joblib.load(model_path)                                      
+    169                                                                         
+    170                                                                         
+    171 # SHAP pre-computed artifacts                                           
+                                                                                
+  /home/adminuser/venv/lib/python3.13/site-packages/joblib/numpy_pickle.py:749  
+  in load                                                                       
+                                                                                
+    746 │   │   │   │   # A memory-mapped array has to be mapped with the endi  
+    747 │   │   │   │   # it has been written with. Other arrays are coerced t  
+    748 │   │   │   │   # native endianness of the host system.                 
+  ❱ 749 │   │   │   │   obj = _unpickle(                                        
+    750 │   │   │   │   │   fobj,                                               
+    751 │   │   │   │   │   ensure_native_byte_order=ensure_native_byte_order,  
+    752 │   │   │   │   │   filename=filename,                                  
+                                                                                
+  /home/adminuser/venv/lib/python3.13/site-packages/joblib/numpy_pickle.py:626  
+  in _unpickle                                                                  
+                                                                                
+    623 │   )                                                                   
+    624 │   obj = None                                                          
+    625 │   try:                                                                
+  ❱ 626 │   │   obj = unpickler.load()                                          
+    627 │   │   if unpickler.compat_mode:                                       
+    628 │   │   │   warnings.warn(                                              
+    629 │   │   │   │   "The file '%s' has been generated with a "              
+                                                                                
+  /usr/local/lib/python3.13/pickle.py:1256 in load                              
+                                                                                
+    1253 │   │   │   │   if not key:                                            
+    1254 │   │   │   │   │   raise EOFError                                     
+    1255 │   │   │   │   assert isinstance(key, bytes_types)                    
+  ❱ 1256 │   │   │   │   dispatch[key[0]](self)                                 
+    1257 │   │   except _Stop as stopinst:                                      
+    1258 │   │   │   return stopinst.value                                      
+    1259                                                                        
+────────────────────────────────────────────────────────────────────────────────
+KeyError: 118
+────────────────────── Traceback (most recent call last) ───────────────────────
+  /home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptru  
+  nner/exec_code.py:129 in exec_func_with_error_handling                        
+                                                                                
+  /home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptru  
+  nner/script_runner.py:687 in code_to_exec                                     
+                                                                                
+  /home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptru  
+  nner/script_runner.py:166 in _mpa_v1                                          
+                                                                                
+  /home/adminuser/venv/lib/python3.13/site-packages/streamlit/navigation/page.  
+  py:380 in run                                                                 
+                                                                                
+  /mount/src/pricepoint-dynamics-decoding-the-uk-supermarket-competitive-lands  
+  cape-with-machine-learning/dashboard/pages/04_model_insights.py:17 in         
+  <module>                                                                      
+                                                                                
+     14 st.divider()                                                            
+     15                                                                         
+     16 # Load Model                                                            
+  ❱  17 model = load_model()                                                    
+     18                                                                         
+     19 # Load PRE-COMPUTED SHAP data                                           
+     20 with st.spinner("Loading pre-computed SHAP analysis..."):               
+                                                                                
+  /home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/caching/  
+  cache_utils.py:281 in __call__                                                
+                                                                                
+  /home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/caching/  
+  cache_utils.py:326 in _get_or_create_cached_value                             
+                                                                                
+  /home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/caching/  
+  cache_utils.py:385 in _handle_cache_miss                                      
+                                                                                
+  /mount/src/pricepoint-dynamics-decoding-the-uk-supermarket-competitive-lands  
+  cape-with-machine-learning/dashboard/data_loader.py:168 in load_model         
+                                                                                
+    165 │   cfg = _load_config()                                                
+    166 │   model_path = _resolve(cfg["model"]["output_dir"]) / cfg["model"]["  
+    167 │   _ensure_file(model_path, "price_predictor_lgbm.joblib")             
+  ❱ 168 │   return joblib.load(model_path)                                      
+    169                                                                         
+    170                                                                         
+    171 # SHAP pre-computed artifacts                                           
+                                                                                
+  /home/adminuser/venv/lib/python3.13/site-packages/joblib/numpy_pickle.py:749  
+  in load                                                                       
+                                                                                
+    746 │   │   │   │   # A memory-mapped array has to be mapped with the endi  
+    747 │   │   │   │   # it has been written with. Other arrays are coerced t  
+    748 │   │   │   │   # native endianness of the host system.                 
+  ❱ 749 │   │   │   │   obj = _unpickle(                                        
+    750 │   │   │   │   │   fobj,                                               
+    751 │   │   │   │   │   ensure_native_byte_order=ensure_native_byte_order,  
+    752 │   │   │   │   │   filename=filename,                                  
+                                                                                
+  /home/adminuser/venv/lib/python3.13/site-packages/joblib/numpy_pickle.py:626  
+  in _unpickle                                                                  
+                                                                                
+    623 │   )                                                                   
+    624 │   obj = None                                                          
+    625 │   try:                                                                
+  ❱ 626 │   │   obj = unpickler.load()                                          
+    627 │   │   if unpickler.compat_mode:                                       
+    628 │   │   │   warnings.warn(                                              
+    629 │   │   │   │   "The file '%s' has been generated with a "              
+                                                                                
+  /usr/local/lib/python3.13/pickle.py:1256 in load                              
+                                                                                
+    1253 │   │   │   │   if not key:                                            
+    1254 │   │   │   │   │   raise EOFError                                     
+    1255 │   │   │   │   assert isinstance(key, bytes_types)                    
+  ❱ 1256 │   │   │   │   dispatch[key[0]](self)                                 
+    1257 │   │   except _Stop as stopinst:                                      
+    1258 │   │   │   return stopinst.value                                      
+    1259                                                                        
+────────────────────────────────────────────────────────────────────────────────
+KeyError: 118
+Downloading...
+From: https://drive.google.com/uc?id=15OH7gaHFK6G9aMt3N2g-RKfNNS5MNQYv
+To: /mount/src/pricepoint-dynamics-decoding-the-uk-supermarket-competitive-landscape-with-machine-learning/market_dynamics_precomputed/market_dispersion.parquet
+  0%|          | 0.00/3.69k [00:00<?, ?B/s][2026-03-18 11:34:25.511890] 100%|██████████| 3.69k/3.69k [00:00<00:00, 13.9MB/s]
+Downloading...
+From: https://drive.google.com/uc?id=1HJhsw9SV6tp4TYi0MPeRJo79Zc_Da67i
+To: /mount/src/pricepoint-dynamics-decoding-the-uk-supermarket-competitive-landscape-with-machine-learning/market_dynamics_precomputed/price_leadership.parquet
+  0%|          | 0.00/4.08k [00:00<?, ?B/s][2026-03-18 11:34:27.074928] 100%|██████████| 4.08k/4.08k [00:00<00:00, 23.9MB/s]
