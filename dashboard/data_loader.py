@@ -30,7 +30,7 @@ _CONFIG_PATH = _PROJECT_ROOT / "config.yaml"
 
 # Google Drive file IDs — used as fallback when files aren't present on disk.
 _GDRIVE_IDS: dict[str, str] = {
-    "canonical_products_e5.parquet": "11_cnPiDfttEPjiPLZreuQYSdFt5eYDN4",
+    "canonical_products_lite.parquet": "",
     "feature_engineered_data.parquet": "16FH8zRgLZK68cFlcqSUQnWWu3TGnrQi_",
     "price_predictor_lgbm.joblib": "1X0GQoHWVrHtHiovKQmt_hpfK9-0jpF_f",
     "shap_sample_data.parquet": "1nrkuLNfuBkd7XC1hfEP9UkXRfXLN8dW3",
@@ -121,8 +121,8 @@ def load_canonical_data() -> pd.DataFrame:
     fit well within Streamlit Cloud's 1GB RAM limit.
     """
     cfg = _load_config()
-    parquet_path = _resolve(cfg["data"]["processed_dir"]) / cfg["matching"]["output_filename"]
-    _ensure_file(parquet_path, "canonical_products_e5.parquet")
+    parquet_path = _resolve(cfg["data"]["processed_dir"]) / "canonical_products_lite.parquet"
+    _ensure_file(parquet_path, "canonical_products_lite.parquet")
 
     # Read exactly what we need, directly into PyArrow structures
     df = pd.read_parquet(
