@@ -115,23 +115,24 @@ def _get_duckdb_conn() -> duckdb.DuckDBPyConnection:
 
 @st.cache_data(ttl=3600)
 def load_canonical_data() -> pd.DataFrame:
-    """Load canonical products with only the columns needed for the dashboard.
+    """Load canonical products with optimized memory footprint.
 
-    Uses DuckDB to read only required columns from the Parquet file,
-    drastically reducing memory footprint.
+    Uses PyArrow backend for extreme memory efficiency, ensuring the 9.5M rows
+    fit well within Streamlit Cloud's 1GB RAM limit.
     """
     cfg = _load_config()
     parquet_path = _resolve(cfg["data"]["processed_dir"]) / cfg["matching"]["output_filename"]
     _ensure_file(parquet_path, "canonical_products_e5.parquet")
 
-    conn = _get_duckdb_conn()
-    query = f"""
-        SELECT supermarket, prices, canonical_name, own_brand, date
-        FROM read_parquet('{parquet_path.as_posix()}')
-    """
-    df = conn.execute(query).fetchdf()
+    # Read exactly what we need, directly into PyArrow structures
+    df = pd.read_parquet(
+        parquet_path,
+        columns=["supermarket", "prices", "canonical_name", "own_brand", "date"],
+        engine="pyarrow",
+        dtype_backend="pyarrow"
+    )
 
-    # Optimise types
+    # Standardize types for the dashboard UI
     df["supermarket"] = df["supermarket"].astype("category")
     df["own_brand"] = df["own_brand"].astype("category")
     df["canonical_name"] = df["canonical_name"].astype("category")
@@ -150,9 +151,9 @@ def get_raw_features_df() -> pd.DataFrame:
     parquet_path = _resolve(cfg["data"]["processed_dir"]) / cfg["features"]["output_filename"]
     _ensure_file(parquet_path, "feature_engineered_data.parquet")
 
-    conn = _get_duckdb_conn()
-    query = f"SELECT * FROM read_parquet('{parquet_path.as_posix()}') LIMIT 10000"
-    return conn.execute(query).fetchdf()
+    # Load just a sample directly via pandas
+    df = pd.read_parquet(parquet_path, engine="pyarrow", dtype_backend="pyarrow")
+    return df.head(10000)
 
 
 # Model
