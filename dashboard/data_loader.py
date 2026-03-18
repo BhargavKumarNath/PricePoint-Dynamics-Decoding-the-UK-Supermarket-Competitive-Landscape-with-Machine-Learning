@@ -56,32 +56,17 @@ def _resolve(rel_path: str) -> Path:
 
 
 def _download_from_gdrive(file_id: str, destination: Path) -> None:
-    """Download a file from Google Drive using requests (no gdown needed).
-
-    Handles the large-file confirmation page automatically.
-    """
+    """Download a file from Google Drive using gdown."""
+    import gdown
+    
     if destination.exists() and destination.stat().st_size > 100:
         return  # Already present and not an LFS pointer
 
     destination.parent.mkdir(parents=True, exist_ok=True)
 
     with st.spinner(f"Downloading {destination.name}… (first run only)"):
-        url = "https://drive.google.com/uc?export=download"
-        session = requests.Session()
-        response = session.get(url, params={"id": file_id}, stream=True)
-
-        # Handle virus-scan confirmation for large files
-        for key, value in response.cookies.items():
-            if key.startswith("download_warning"):
-                response = session.get(
-                    url, params={"id": file_id, "confirm": value}, stream=True
-                )
-                break
-
-        with open(destination, "wb") as f:
-            for chunk in response.iter_content(chunk_size=32768):
-                if chunk:
-                    f.write(chunk)
+        # We use gdown to handle Google Drive's large file virus scan warnings correctly
+        gdown.download(id=file_id, output=str(destination), quiet=False)
 
     st.success(f"✓ Downloaded {destination.name}")
 
