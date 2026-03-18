@@ -134,8 +134,8 @@ def load_canonical_data() -> pd.DataFrame:
 
     # Standardize types for the dashboard UI
     df["supermarket"] = df["supermarket"].astype("category")
-    df["own_brand"] = df["own_brand"].astype("category")
     df["canonical_name"] = df["canonical_name"].astype("category")
+    df["own_brand"] = df["own_brand"].astype(bool)
     df["prices"] = pd.to_numeric(df["prices"], downcast="float")
     df["date"] = pd.to_datetime(df["date"])
     return df

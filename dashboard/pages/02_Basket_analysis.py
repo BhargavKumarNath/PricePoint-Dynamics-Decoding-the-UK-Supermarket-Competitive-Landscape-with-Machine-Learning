@@ -15,7 +15,7 @@ def get_pivot_table():
     latest_date = pd.to_datetime(df['date']).max()
     df_latest = df[df['date'] == latest_date].copy()
     df_latest = df_latest.drop_duplicates(subset=['canonical_name', 'supermarket'])
-    pivot = df_latest.pivot_table(index='canonical_name', columns='supermarket', values='prices')
+    pivot = df_latest.pivot_table(index='canonical_name', columns='supermarket', values='prices', observed=True)
     return pivot
 
 price_pivot = get_pivot_table()

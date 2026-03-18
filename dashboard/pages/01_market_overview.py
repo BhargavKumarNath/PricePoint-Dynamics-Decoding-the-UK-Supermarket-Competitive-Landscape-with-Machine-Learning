@@ -50,7 +50,7 @@ with col2:
         # 2. Product Portfolio Analysis
         st.markdown("##### Product Portfolio Size")
         
-        portfolio_size = df.groupby('supermarket')['canonical_name'].nunique().sort_values(ascending=False)
+        portfolio_size = df.groupby('supermarket', observed=True)['canonical_name'].nunique().sort_values(ascending=False)
         
         set_plot_style()
         fig, ax = plt.subplots(figsize=(8, 5))
@@ -75,7 +75,7 @@ with col3:
     with st.container(border=True, height=450): 
         # 3a. Own Brand Percentage
         st.markdown("##### Percentage of Own Brand")
-        own_brand_percentage = df.groupby('supermarket')['own_brand'].mean() * 100
+        own_brand_percentage = df.groupby('supermarket', observed=True)['own_brand'].mean() * 100
         st.dataframe(own_brand_percentage.sort_values(ascending=False).map("{:.2f}%".format), width='stretch')
         st.markdown("""
         **Insight:** Contrary to common perception, it's the larger supermarkets like **ASDA** that have the highest proportion of own-brand items, showing their reliance on these lines to compete.
