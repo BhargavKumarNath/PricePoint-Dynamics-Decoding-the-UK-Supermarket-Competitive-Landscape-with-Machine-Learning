@@ -31,7 +31,7 @@ _CONFIG_PATH = _PROJECT_ROOT / "config.yaml"
 # Google Drive file IDs — used as fallback when files aren't present on disk.
 _GDRIVE_IDS: dict[str, str] = {
     "canonical_products_lite.parquet": "19YDdO6nqpm2Va2JDxSRAljvFHUJH1qL9",
-    "feature_engineered_data.parquet": "16FH8zRgLZK68cFlcqSUQnWWu3TGnrQi_",
+    "feature_data_lite.parquet": "",
     "price_predictor_lgbm.joblib": "1X0GQoHWVrHtHiovKQmt_hpfK9-0jpF_f",
     "shap_sample_data.parquet": "1nrkuLNfuBkd7XC1hfEP9UkXRfXLN8dW3",
     "shap_values.npy": "1kqwR3ailFxNH2Tfn9MWyNGgsZVS3edOx",
@@ -148,12 +148,11 @@ def load_canonical_data() -> pd.DataFrame:
 def get_raw_features_df() -> pd.DataFrame:
     """Load a sample of the feature-engineered data for the Price Predictor."""
     cfg = _load_config()
-    parquet_path = _resolve(cfg["data"]["processed_dir"]) / cfg["features"]["output_filename"]
-    _ensure_file(parquet_path, "feature_engineered_data.parquet")
+    parquet_path = _resolve(cfg["data"]["processed_dir"]) / "feature_data_lite.parquet"
+    _ensure_file(parquet_path, "feature_data_lite.parquet")
 
-    # Load just a sample directly via pandas
     df = pd.read_parquet(parquet_path, engine="pyarrow", dtype_backend="pyarrow")
-    return df.head(10000)
+    return df
 
 
 # Model
