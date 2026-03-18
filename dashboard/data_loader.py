@@ -31,7 +31,7 @@ _CONFIG_PATH = _PROJECT_ROOT / "config.yaml"
 # Google Drive file IDs — used as fallback when files aren't present on disk.
 _GDRIVE_IDS: dict[str, str] = {
     "canonical_products_lite.parquet": "19YDdO6nqpm2Va2JDxSRAljvFHUJH1qL9",
-    "feature_data_lite.parquet": "",
+    "feature_data_lite.parquet": "1sA0xXkLxGCefHmelzkFVpFdSWIJqEmgi",
     "price_predictor_lgbm.joblib": "1X0GQoHWVrHtHiovKQmt_hpfK9-0jpF_f",
     "shap_sample_data.parquet": "1nrkuLNfuBkd7XC1hfEP9UkXRfXLN8dW3",
     "shap_values.npy": "1kqwR3ailFxNH2Tfn9MWyNGgsZVS3edOx",
